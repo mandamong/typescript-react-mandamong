@@ -11,6 +11,7 @@ const SignUpPage = lazy(() => import('../pages/SignUpPage'));
 const MandalartListPage = lazy(() => import('../pages/MandalartListPage'));
 const MandalartCreatePage = lazy(() => import('../pages/MandalartCreatePage'));
 const MandalartDetailPage = lazy(() => import('../pages/MandalartDetailPage'));
+const SettingsPage = lazy(() => import('../pages/SettingsPage'));
 
 const CenteredLoader = () => (
     <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
@@ -71,6 +72,14 @@ const router = createBrowserRouter([
                         element: (
                             <Suspense fallback={<CenteredLoader/>}>
                                 <MandalartDetailPage/>
+                            </Suspense>
+                        ),
+                    },
+                    {
+                        path: 'settings',
+                        element: (
+                            <Suspense fallback={<CenteredLoader/>}>
+                                <SettingsPage />
                             </Suspense>
                         ),
                     },

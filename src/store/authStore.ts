@@ -17,6 +17,7 @@ interface AuthState {
     logout: () => void;
     setToken: (accessToken: string) => void;
     setRefreshToken: (refreshToken: string) => void;
+    setNickname: (nickname: string) => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -44,6 +45,13 @@ const useAuthStore = create<AuthState>((set) => ({
         localStorage.setItem('refreshToken', refreshToken);
         set({refreshToken});
     },
+    setNickname: (nickname) => set(state => {
+        const user = state.user ? { ...state.user, nickname } : null;
+        if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+        return { ...state, user };
+    }),
 }));
 
 export default useAuthStore;

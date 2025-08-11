@@ -13,7 +13,9 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    IconButton,
     Paper,
+    TextField,
     Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -89,7 +91,7 @@ const MandalartDetailPage: React.FC = () => {
                 return newMandalart;
             });
 
-            showSnackbar('주제와 연결된 모든 항목이 AI로 업데이트되고, 상태가 초기화되었습니다.', 'success');
+            showSnackbar('주제와 연결된 모든 항목이 새로 제안되었습니다.', 'success');
 
             // Update objectives and actions via API
             const updatePromises: Promise<any>[] = [];
@@ -152,7 +154,7 @@ const MandalartDetailPage: React.FC = () => {
                 return newMandalart;
             });
 
-            showSnackbar('목표와 연결된 행동들이 AI로 업데이트되고, 상태가 초기화되었습니다.', 'success');
+            showSnackbar('목표와 연결된 행동들이 새로 제안되었습니다.', 'success');
 
             // Update actions via API
             const updatePromises: Promise<any>[] = [];
@@ -338,6 +340,46 @@ const MandalartDetailPage: React.FC = () => {
         }
     };
 
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [newName, setNewName] = useState(mandalart?.mandalart.name || '');
+
+    useEffect(() => {
+        if (mandalart) {
+            setNewName(mandalart.mandalart.name);
+        }
+    }, [mandalart]);
+
+    const handleNameChange = async () => {
+        if (!id || !mandalart || newName === mandalart.mandalart.name) {
+            setIsEditingName(false);
+            return;
+        }
+
+        const originalName = mandalart.mandalart.name;
+
+        setMandalart(prev => {
+            if (!prev) return null;
+            const newMandalartData = JSON.parse(JSON.stringify(prev));
+            newMandalartData.mandalart.name = newName;
+            return newMandalartData;
+        });
+
+        setIsEditingName(false);
+
+        try {
+            await mandalartService.updateMandalartName(id, newName);
+            showSnackbar('이름이 성공적으로 변경되었습니다.', 'success');
+        } catch (error) {
+            setMandalart(prev => {
+                if (!prev) return null;
+                const newMandalartData = JSON.parse(JSON.stringify(prev));
+                newMandalartData.mandalart.name = originalName;
+                return newMandalartData;
+            });
+            showSnackbar('이름 변경에 실패했습니다.', 'error');
+        }
+    };
+
     if (loading) {
         return <Box sx={{display: 'flex', justifyContent: 'center', mt: 4}}><CircularProgress/></Box>;
     }
@@ -348,14 +390,43 @@ const MandalartDetailPage: React.FC = () => {
 
     return (
         <Paper elevation={3} sx={{p: 3, position: 'relative'}}>
-            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
-                <Typography variant="h4" component="h1">
-                    {mandalart.mandalart.name}
-                </Typography>
-                <Button variant="contained" color="error" startIcon={<DeleteIcon/>}
-                        onClick={() => setOpenDeleteDialog(true)} disabled={loadingDelete}>
-                    {loadingDelete ? <CircularProgress size={24} color="inherit"/> : 'Delete Mandalart'}
-                </Button>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, gap: 2}}>
+                {isEditingName ? (
+                    <TextField
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        onBlur={handleNameChange}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleNameChange();
+                            } else if (e.key === 'Escape') {
+                                setIsEditingName(false);
+                                setNewName(mandalart.mandalart.name);
+                            }
+                        }}
+                        autoFocus
+                        variant="standard"
+                        InputProps={{
+                            disableUnderline: true,
+                            sx: {
+                                typography: 'h4',
+                                padding: 0, // Adjust padding to match Typography
+                            }
+                        }}
+                    />
+                ) : (
+                    <Typography variant="h4" component="h1" onClick={() => setIsEditingName(true)} sx={{cursor: 'pointer'}}>
+                        {mandalart.mandalart.name}
+                    </Typography>
+                )}
+                <IconButton
+                    aria-label="delete mandalart"
+                    onClick={() => setOpenDeleteDialog(true)}
+                    disabled={loadingDelete}
+                    color="error"
+                >
+                    {loadingDelete ? <CircularProgress size={24} /> : <DeleteIcon />}
+                </IconButton>
             </Box>
             <MandalartGrid
                 data={mandalart}

@@ -23,8 +23,10 @@ const Header: React.FC = () => {
                 <Box>
                     {isAuthenticated && user ? (
                         <Box sx={{display: 'flex', alignItems: 'center'}}>
-                            <Avatar src={user.image} alt={user.nickname} sx={{width: 32, height: 32, mr: 1}}/>
-                            <Typography sx={{mr: 2}}>{user.nickname}</Typography>
+                            <Button color="inherit" component={Link} to="/settings" sx={{ textTransform: 'none', borderRadius: '16px' }}>
+                                <Avatar src={user.image} alt={user.nickname} sx={{width: 32, height: 32, mr: 1}}/>
+                                <Typography>{user.nickname}</Typography>
+                            </Button>
                             <Button color="inherit" component={Link} to="/mandalart">
                                 만다르트
                             </Button>

@@ -49,6 +49,10 @@ class AuthService {
     });
     return data;
   }
+
+  async deleteAccount(): Promise<void> {
+    await axiosInstance.delete('/auth/basic');
+  }
 }
 
 export const authService = new AuthService();

@@ -1,11 +1,22 @@
 import React from 'react';
 import {Link as RouterLink} from 'react-router-dom';
-import {Box, Card, CardActionArea, CardContent, CircularProgress, Fab, Typography,} from '@mui/material';
+import {Box, Card, CardActionArea, CardContent, Chip, CircularProgress, Fab, Typography,} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add'; // Corrected import
 import {useMandalartList} from '@/hooks/useMandalartList'; // Import the custom hook
 
 const MandalartListPage: React.FC = () => {
     const {mandalarts, loading} = useMandalartList();
+
+    const getStatusInKorean = (status: string) => {
+        switch (status) {
+            case 'IN_PROGRESS':
+                return '진행 중';
+            case 'DONE':
+                return '완료';
+            default:
+                return status;
+        }
+    };
 
     return (
         <Box>
@@ -24,9 +35,16 @@ const MandalartListPage: React.FC = () => {
                                         <Typography gutterBottom variant="h5" component="div">
                                             {mandalart.mandalart.name}
                                         </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Status: {mandalart.mandalart.status}
-                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1, mb: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                상태:
+                                            </Typography>
+                                            <Chip
+                                                label={getStatusInKorean(mandalart.mandalart.status)}
+                                                color={mandalart.mandalart.status === 'DONE' ? 'success' : 'primary'}
+                                                size="small"
+                                            />
+                                        </Box>
                                         <Typography variant="body1" sx={{mt: 1}}>
                                             🎯 {mandalart.subject.name}
                                         </Typography>
