@@ -1,3 +1,5 @@
+.env**
+mandamong.swagger.json
 # Logs
 logs
 *.log
