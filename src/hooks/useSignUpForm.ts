@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useState, useRef, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {authService} from '@/services/AuthService';
 import useAuthStore from '@/store/authStore';
@@ -26,19 +26,32 @@ export const useSignUpForm = () => {
     const [loadingNicknameCheck, setLoadingNicknameCheck] = useState(false);
     const [loadingSignUp, setLoadingSignUp] = useState(false);
 
-    
     const [emailError, setEmailError] = useState(false);
     const [nicknameError, setNicknameError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [imageError, setImageError] = useState(false);
 
+    // State for verification code resend
+    const [isCodeSent, setIsCodeSent] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
+    const timerId = useRef<NodeJS.Timeout | null>(null);
+
+    // Clear interval on unmount
+    useEffect(() => {
+        return () => {
+            if (timerId.current) {
+                clearInterval(timerId.current);
+            }
+        };
+    }, []);
+
     const validateEmail = (email: string) => {
-        return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
+        return /^["\w-.]+@(["\w-]+\.)+[\w-]{2,4}$/.test(email);
     };
 
     const validatePassword = (password: string) => {
-        const hasMinLength = password.length >= 8; // Changed to 8 for stronger password
+        const hasMinLength = password.length >= 8;
         const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
@@ -95,6 +108,20 @@ export const useSignUpForm = () => {
         try {
             await authService.requestEmailVerification(email);
             showSnackbar('인증 코드를 발송했습니다.', 'info');
+            setIsCodeSent(true);
+            setResendCooldown(60);
+
+            if (timerId.current) clearInterval(timerId.current);
+            timerId.current = setInterval(() => {
+                setResendCooldown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timerId.current!);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
         } catch (_error) {
             showSnackbar('인증 코드 발송에 실패했습니다.', 'error');
         } finally {
@@ -112,6 +139,8 @@ export const useSignUpForm = () => {
             await authService.verifyEmailCode(email, verificationCode);
             showSnackbar('이메일 인증이 완료되었습니다.', 'success');
             setEmailVerified(true);
+            if (timerId.current) clearInterval(timerId.current);
+            setResendCooldown(0);
         } catch (_error) {
             showSnackbar('인증 코드가 올바르지 않습니다.', 'error');
         } finally {
@@ -227,8 +256,8 @@ export const useSignUpForm = () => {
         setPasswordConfirmError,
         imageError,
         setImageError,
-        validateEmail,
-        validatePassword,
+        isCodeSent,
+        resendCooldown,
         handleCheckEmail,
         handleRequestVerification,
         handleVerifyCode,
@@ -236,3 +265,4 @@ export const useSignUpForm = () => {
         handleSubmit,
     };
 };
+

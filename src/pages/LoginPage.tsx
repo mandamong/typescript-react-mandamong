@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
                         id="email"
                         label="이메일"
                         name="email"
-                        autoComplete="email"
+                        autoComplete="username"
                         autoFocus
                         value={email}
                         onChange={(e) => {

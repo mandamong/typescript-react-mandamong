@@ -45,16 +45,19 @@ export const useLoginForm = () => {
 
         setLoading(true);
         try {
-            const payload = await authService.login(email, password);
-            if (payload) {
-                const {accessToken, refreshToken, ...user} = payload;
+            const loginData = await authService.login(email, password);
+            if (loginData) {
+                const { accessToken, refreshToken, ...user } = loginData;
+
+                
+
                 login(accessToken, refreshToken, user);
                 showSnackbar('로그인 되었습니다.', 'success');
                 navigate('/mandalart');
+            } else {
+                throw new Error('Login failed: No data received');
             }
-            
         } catch (_error) {
-            
             showSnackbar('로그인에 실패했습니다.', 'error');
         } finally {
             setLoading(false);

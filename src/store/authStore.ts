@@ -1,8 +1,4 @@
 import {create} from 'zustand';
-import { client } from '@/api/client.gen';
-import { type AxiosResponse, type AxiosError } from 'axios';
-import {handleTokenRefresh} from '@/utils/tokenRefresh';
-
 
 interface User {
     id: number;
@@ -49,25 +45,5 @@ const useAuthStore = create<AuthState>((set) => ({
         set({refreshToken});
     },
 }));
-
-
-
-client.interceptors.request.use((request) => {
-    const token = useAuthStore.getState().accessToken;
-    if (token) {
-        request.headers.set('Authorization', `Bearer ${token}`);
-    }
-    return request;
-});
-
-client.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    async (error: AxiosError) => {
-        if (error.response?.status === 401) {
-            return handleTokenRefresh(error);
-        }
-        return Promise.reject(error);
-    }
-);
 
 export default useAuthStore;

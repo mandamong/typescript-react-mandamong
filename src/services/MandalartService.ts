@@ -1,111 +1,60 @@
-import {
-    deleteApiMandalartByMandalartId,
-    getApiMandalart,
-    getApiMandalartByMandalartId,
-    patchApiMandalartActionByActionId,
-    patchApiMandalartNameByMandalartId,
-    patchApiMandalartObjectiveByObjectiveId,
-    patchApiMandalartSubjectBySubjectId,
-    postApiGeminiObjective,
-    postApiGeminiSubject,
-    postApiMandalart,
-} from '@/api/sdk.gen';
-
-
-const buildUpdatePayload = (name?: string, status?: string) => {
-    const payload: Record<string, string> = {};
-    if (name !== undefined) payload.updated = name;
-    if (status !== undefined) payload.status = status;
-    return payload;
-};
+import axiosInstance from '@/api/client/axios';
+import type {
+  Mandalart,
+  MandalartDetailResponse,
+  MandalartRequest,
+  GeminiSubjectResponse,
+  GeminiObjectiveResponse,
+  Page,
+} from '@/types/mandalart';
 
 class MandalartService {
-    async getMandalarts(page?: string, size?: string) {
-        const {data} = await getApiMandalart({query: {number: page, size}});
-        return data?.payload;
-    }
+  async getMandalarts(page?: string, size?: string): Promise<Page<Mandalart> | undefined> {
+    const { data } = await axiosInstance.get<{ payload: Page<Mandalart> }>('/mandalart', {
+      params: { number: page, size },
+    });
+    return data.payload;
+  }
 
-    async createMandalart(payload: {
-        name: string;
-        subject: string;
-        objectives: string[];
-        actions: string[][];
-    }) {
-        const {data} = await postApiMandalart({
-            body: {
-                name: payload.name,
-                subject: payload.subject,
-                objectives: payload.objectives,
-                actions: payload.actions,
-            },
-        });
-        return data?.payload;
-    }
+  async createMandalart(payload: MandalartRequest): Promise<MandalartDetailResponse | undefined> {
+    const { data } = await axiosInstance.post<{ payload: MandalartDetailResponse }>('/mandalart', payload);
+    return data.payload;
+  }
 
-    async getMandalartDetail(mandalartId: string) {
-        const {data} = await getApiMandalartByMandalartId({path: {mandalartId}});
-        return data?.payload;
-    }
+  async getMandalartDetail(mandalartId: string): Promise<MandalartDetailResponse | undefined> {
+    const { data } = await axiosInstance.get<{ payload: MandalartDetailResponse }>(`/mandalart/${mandalartId}`);
+    return data.payload;
+  }
 
-    async updateMandalartName(mandalartId: string, updated: string) {
-        const {data} = await patchApiMandalartNameByMandalartId({
-            path: {mandalartId},
-            body: {updated},
-        });
-        return data?.payload;
-    }
+  async updateMandalartName(mandalartId: string, updated: string): Promise<void> {
+    await axiosInstance.patch(`/mandalart/name/${mandalartId}`, { updated });
+  }
 
-    async updateSubject(subjectId: string, name?: string, status?: string) {
-        interface UpdatePayload {
-            updated: string;
-            status?: string;
-        }
+  async updateSubject(subjectId: string, name?: string, status?: string): Promise<void> {
+    await axiosInstance.patch(`/mandalart/subject/${subjectId}`, { updated: name, status });
+  }
 
-        const body: UpdatePayload = {updated: name || ''};
-        if (status !== undefined) body.status = status;
-        const {data} = await patchApiMandalartSubjectBySubjectId({
-            path: {subjectId},
-            body: body,
-        });
-        return data?.payload;
-    }
+  async updateObjective(objectiveId: string, name?: string, status?: string): Promise<void> {
+    await axiosInstance.patch(`/mandalart/objective/${objectiveId}`, { updated: name, status });
+  }
 
-    async updateObjective(objectiveId: string, name?: string, status?: string) {
-        interface UpdatePayload {
-            updated: string;
-            status?: string;
-        }
+  async updateAction(actionId: string, name?: string, status?: string): Promise<void> {
+    await axiosInstance.patch(`/mandalart/action/${actionId}`, { updated: name, status });
+  }
 
-        const body: UpdatePayload = {updated: name || ''};
-        if (status !== undefined) body.status = status;
-        const {data} = await patchApiMandalartObjectiveByObjectiveId({
-            path: {objectiveId},
-            body: body,
-        });
-        return data?.payload;
-    }
+  async deleteMandalart(mandalartId: string): Promise<void> {
+    await axiosInstance.delete(`/mandalart/${mandalartId}`);
+  }
 
-    async updateAction(actionId: string, name?: string, status?: string) {
-        const {data} = await patchApiMandalartActionByActionId({
-            path: {actionId},
-            body: buildUpdatePayload(name, status),
-        });
-        return data;
-    }
+  async generateGeminiSubject(subject: string): Promise<GeminiSubjectResponse | undefined> {
+    const { data } = await axiosInstance.post<{ payload: GeminiSubjectResponse }>('/gemini/subject', { prompt: subject });
+    return data.payload;
+  }
 
-    async deleteMandalart(mandalartId: string) {
-        await deleteApiMandalartByMandalartId({path: {mandalartId}});
-    }
-
-    async generateGeminiSubject(subject: string) {
-        const {data} = await postApiGeminiSubject({body: {prompt: subject}});
-        return data?.payload;
-    }
-
-    async generateGeminiObjective(objective: string) {
-        const {data} = await postApiGeminiObjective({body: {prompt: objective}});
-        return data?.payload;
-    }
+  async generateGeminiObjective(objective: string): Promise<GeminiObjectiveResponse | undefined> {
+    const { data } = await axiosInstance.post<{ payload: GeminiObjectiveResponse }>('/gemini/objective', { prompt: objective });
+    return data.payload;
+  }
 }
 
 export const mandalartService = new MandalartService();

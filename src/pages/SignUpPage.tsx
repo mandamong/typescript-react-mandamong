@@ -55,6 +55,8 @@ const SignUpPage: React.FC = () => {
     setPasswordConfirmError,
     imageError,
     setImageError,
+    isCodeSent,
+    resendCooldown,
     handleCheckEmail,
     handleRequestVerification,
     handleVerifyCode,
@@ -97,6 +99,8 @@ const SignUpPage: React.FC = () => {
               handleCheckEmail={handleCheckEmail}
               handleRequestVerification={handleRequestVerification}
               handleVerifyCode={handleVerifyCode}
+              isCodeSent={isCodeSent}
+              resendCooldown={resendCooldown}
             />
 
             <NicknameSection

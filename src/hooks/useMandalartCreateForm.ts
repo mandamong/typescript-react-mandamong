@@ -29,7 +29,7 @@ export const useMandalartCreateForm = () => {
             if (payload) {
                 const {objectives: aiObjectives, actions: aiActions} = payload;
                 setObjectives(aiObjectives.slice(0, 4));
-                setActions(aiActions.map((objActions: string[]) => objActions.slice(0, 5)));
+                setActions(aiActions.map((objActions: string[]) => (objActions || []).slice(0, 5)));
                 showSnackbar('AI 제안이 생성되었습니다.', 'success');
             }
         } catch (error) {
@@ -48,13 +48,11 @@ export const useMandalartCreateForm = () => {
 
         setLoadingSave(true);
 
-        // Filter out empty objectives and their corresponding actions
         const filteredObjectives: string[] = [];
         const filteredActions: string[][] = [];
         objectives.forEach((objective, index) => {
             if (objective.trim() !== '') {
                 filteredObjectives.push(objective);
-                // Also push the corresponding actions, even if they are empty, to maintain index integrity
                 filteredActions.push(actions[index] || []);
             }
         });
@@ -66,12 +64,6 @@ export const useMandalartCreateForm = () => {
         }
 
         try {
-            console.log({
-                name: mandalartName,
-                subject,
-                objectives: filteredObjectives,
-                actions: filteredActions,
-            })
             await mandalartService.createMandalart({
                 name: mandalartName,
                 subject,

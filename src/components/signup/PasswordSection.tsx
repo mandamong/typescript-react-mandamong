@@ -25,12 +25,13 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
     return (
         <Stack spacing={2} sx={{width: '100%'}}>
             <TextField
-                required
+                
                 fullWidth
                 name="password"
-                label="비밀번호"
+                label={<>비밀번호 <span style={{ color: 'red' }}>*</span></>}
                 type="password"
                 id="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => {
                     setPassword(e.target.value);
@@ -40,12 +41,13 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
                 helperText={passwordError ? '비밀번호는 6자 이상이어야 합니다.' : ''}
             />
             <TextField
-                required
+                
                 fullWidth
                 name="passwordConfirm"
-                label="비밀번호 재입력"
+                label={<>비밀번호 재입력 <span style={{ color: 'red' }}>*</span></>}
                 type="password"
                 id="passwordConfirm"
+                autoComplete="new-password"
                 value={passwordConfirm}
                 onChange={(e) => {
                     setPasswordConfirm(e.target.value);

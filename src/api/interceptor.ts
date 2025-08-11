@@ -1,58 +1,51 @@
-import {client} from '@/api/client.gen';
+import {type AxiosError, type InternalAxiosRequestConfig} from 'axios';
+import axiosInstance from '@/api/client/axios';
 import {authService} from '@/services/AuthService';
 import useAuthStore from '@/store/authStore';
 
-export const setupErrorInterceptor = (showSnackbar: (message: string, severity?: "error" | "success" | "info" | "warning") => void) => {
-    client.interceptors.error.use(async (error, response, request, options) => {
-        const authStore = useAuthStore.getState();
+interface RetryConfig extends InternalAxiosRequestConfig {
+    _retry?: boolean;
+}
 
-        if (response && response.status === 401 && authStore.refreshToken) {
-            if (request.url.includes('/api/auth/token/refresh')) {
-                authStore.logout();
-                showSnackbar('Session expired. Please log in again.', 'error');
-                if (window.location.pathname !== '/login') {
-                    window.location.href = '/login';
+export const setupAxiosInterceptors = () => {
+    axiosInstance.interceptors.response.use(
+        (response) => response,
+        async (error: AxiosError) => {
+            const originalRequest = error.config as RetryConfig;
+
+            if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+                originalRequest._retry = true;
+
+                const {refreshToken, logout} = useAuthStore.getState();
+
+                if (refreshToken) {
+                    try {
+                        const newTokens = await authService.refreshToken(refreshToken);
+                        if (newTokens && newTokens.payload) {
+                            const {setToken, setRefreshToken} = useAuthStore.getState();
+                            const { accessToken, refreshToken: newRefreshToken } = newTokens.payload;
+                            setToken(accessToken);
+                            setRefreshToken(newRefreshToken);
+
+                            if (originalRequest.headers) {
+                                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                            }
+                            return axiosInstance(originalRequest);
+                        }
+                    } catch (refreshError) {
+                        console.error('Token refresh failed:', refreshError);
+                        logout();
+                        window.location.href = '/login';
+                        return Promise.reject(refreshError);
+                    }
                 }
+
+                logout();
+                window.location.href = '/login';
                 return Promise.reject(error);
             }
 
-            try {
-                const refreshResult = await authService.refreshToken(authStore.refreshToken);
-                if (!refreshResult) {
-                    throw new Error('Token refresh failed: No payload received.');
-                }
-                const {accessToken, refreshToken} = refreshResult;
-                authStore.setToken(accessToken);
-                authStore.setRefreshToken(refreshToken);
-
-                const newHeaders = new Headers(options.headers as HeadersInit);
-                newHeaders.set('Authorization', `Bearer ${accessToken}`);
-                const newOptions = {
-                    ...options,
-                    headers: newHeaders,
-                    method: request.method,
-                };
-
-                return client.request(newOptions as any);
-            } catch (_refreshError) {
-                authStore.logout();
-                showSnackbar('Session expired. Please log in again.', 'error');
-                if (window.location.pathname !== '/login') {
-                    window.location.href = '/login';
-                }
-            }
+            return Promise.reject(error);
         }
-
-        let errorMessage = 'An unexpected error occurred.';
-        if (typeof error === 'string') {
-            errorMessage = error;
-        } else if (typeof error === 'object' && error !== null) {
-            const message = (error as any).message || (error as any).detail || (error as any).error;
-            if (typeof message === 'string') {
-                errorMessage = message;
-            }
-        }
-        showSnackbar(errorMessage, 'error');
-        return Promise.reject(error);
-    });
+    );
 };

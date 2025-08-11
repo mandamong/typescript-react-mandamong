@@ -25,11 +25,12 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
     return (
         <Box sx={{width: '100%'}}>
             <TextField
-                required
+                
                 fullWidth
                 id="nickname"
-                label="닉네임"
+                label={<>닉네임 <span style={{ color: 'red' }}>*</span></>}
                 name="nickname"
+                autoComplete="nickname"
                 value={nickname}
                 onChange={(e) => {
                     setNickname(e.target.value);
@@ -45,7 +46,7 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
                                 onClick={handleCheckNickname}
                                 disabled={!nickname || loadingNicknameCheck || nicknameChecked}
                             >
-                                {loadingNicknameCheck ? <CircularProgress size={24}/> : 'Check'}
+                                {loadingNicknameCheck ? <CircularProgress size={24}/> : '중복확인'}
                             </Button>
                         </InputAdornment>
                     ),
