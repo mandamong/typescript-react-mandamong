@@ -1,17 +1,16 @@
 import type {
-  PostApiGeminiSubjectResponse,
-  PostApiGeminiObjectiveResponse,
-  GetApiMandalartResponse,
-  PostApiMandalartResponse,
-  GetApiMandalartByMandalartIdResponse,
-  PostApiMandalartData,
+    GetApiMandalartByMandalartIdResponse,
+    GetApiMandalartResponse,
+    PostApiGeminiObjectiveResponse,
+    PostApiGeminiSubjectResponse,
+    PostApiMandalartData,
 } from '@/api/types.gen';
 
-export type GeminiSubjectResponse = PostApiGeminiSubjectResponse['200']['payload'];
-export type GeminiObjectiveResponse = PostApiGeminiObjectiveResponse['200']['payload'];
+export type GeminiSubjectResponse = PostApiGeminiSubjectResponse['payload'];
+export type GeminiObjectiveResponse = PostApiGeminiObjectiveResponse['payload'];
 
-export type Mandalart = GetApiMandalartResponse['200']['payload']['content'][0];
-export type MandalartDetailResponse = GetApiMandalartByMandalartIdResponse['200']['payload'];
+export type Mandalart = GetApiMandalartResponse['payload']['content'][0];
+export type MandalartDetailResponse = GetApiMandalartByMandalartIdResponse['payload'];
 export type MandalartRequest = PostApiMandalartData['body'];
 
 // This is not defined in the generated types, so I'll define it here based on usage

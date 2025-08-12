@@ -1,5 +1,5 @@
+import { Box, Button, CircularProgress, InputAdornment, TextField } from '@mui/material';
 import React from 'react';
-import {Box, Button, CircularProgress, InputAdornment, TextField} from '@mui/material';
 
 interface NicknameSectionProps {
     nickname: string;
@@ -25,10 +25,10 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
     return (
         <Box sx={{width: '100%'}}>
             <TextField
-                
+                required
                 fullWidth
                 id="nickname"
-                label={<>닉네임 <span style={{ color: 'red' }}>*</span></>}
+                label={"닉네임"}
                 name="nickname"
                 autoComplete="nickname"
                 value={nickname}

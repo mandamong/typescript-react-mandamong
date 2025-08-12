@@ -1,7 +1,7 @@
-import {authService} from '@/services/AuthService';
+import { authService } from '@/services/AuthService';
 import useAuthStore from '@/store/authStore';
-import {client} from '@/api/client.gen';
-import { type AxiosError, type AxiosRequestConfig } from 'axios';
+import type { RefreshTokenResponse } from '@/types/auth';
+import { type AxiosError } from 'axios';
 
 declare module 'axios' {
     export interface AxiosRequestConfig {
@@ -9,7 +9,7 @@ declare module 'axios' {
     }
 }
 
-export const handleTokenRefresh = async (error: AxiosError, ...args: any[]) => {
+export const handleTokenRefresh = async (error: AxiosError) => {
     const originalRequest = error.config;
 
     if (!originalRequest || originalRequest._retry) {
@@ -23,13 +23,22 @@ export const handleTokenRefresh = async (error: AxiosError, ...args: any[]) => {
 
     if (currentRefreshToken) {
         try {
-            const newTokens = await authService.refreshToken(currentRefreshToken);
-            if (newTokens) {
-                authStore.setToken(newTokens.accessToken);
-                authStore.setRefreshToken(newTokens.refreshToken);
+            const newTokens: RefreshTokenResponse | undefined = await authService.refreshToken(currentRefreshToken);
+            const payload = newTokens?.payload;
+            if (payload && originalRequest.headers) {
+                authStore.setToken(payload.accessToken);
+                authStore.setRefreshToken(payload.refreshToken);
 
-                originalRequest.headers.set('Authorization', `Bearer ${newTokens.accessToken}`);
-                return client.request({ ...originalRequest, url: originalRequest.url ?? '', signal: originalRequest.signal as AbortSignal | undefined, auth: originalRequest.auth as any, method: originalRequest.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'CONNECT' | 'TRACE' });
+                                originalRequest.headers.set('Authorization', `Bearer ${payload.accessToken}`);
+                                // Use fetch directly to avoid RequestOptions typing mismatch
+                                const newHeaders = new Headers();
+                                Object.entries(originalRequest.headers as Record<string, string>).forEach(([k, v]) => newHeaders.set(k, v));
+                                const retried = new Request(originalRequest.url ?? '', {
+                                    method: (originalRequest.method as string) ?? 'GET',
+                                    headers: newHeaders,
+                                    body: (originalRequest as unknown as { data?: BodyInit }).data,
+                                });
+                                return fetch(retried);
             }
         } catch (refreshError: unknown) {
             const axiosRefreshError = refreshError as AxiosError;

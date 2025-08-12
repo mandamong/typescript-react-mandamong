@@ -1,9 +1,12 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import {mandalartService} from '@/services/MandalartService';
+import { mandalartService } from '@/services/MandalartService';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import MandalartGrid from '@/components/MandalartGrid';
-import {useSnackbar} from '@/hooks/useSnackbar';
+import type { MandalartData } from '@/hooks/useMandalartDetail';
+import { useMandalartDetail } from '@/hooks/useMandalartDetail';
+import { useSnackbar } from '@/hooks/useSnackbar';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Box,
     Button,
@@ -18,9 +21,6 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import type {MandalartData} from '@/hooks/useMandalartDetail';
-import {useMandalartDetail} from '@/hooks/useMandalartDetail';
 
 // The detail API response doesn't include status, so we make it optional here.
 type MandalartItem = { id: number; name: string; status?: string };
@@ -60,30 +60,30 @@ const MandalartDetailPage: React.FC = () => {
             }
 
             // Optimistically update local state with AI results and reset statuses
-            setMandalart(prev => {
+            setMandalart((prev: MandalartData | null) => {
                 if (!prev) return null;
-                const newMandalart = JSON.parse(JSON.stringify(prev));
+                const newMandalart: MandalartData = JSON.parse(JSON.stringify(prev));
 
                 // Update subject name and status
                 newMandalart.subject.name = newSubjectName;
                 newMandalart.subject.status = 'IN_PROGRESS';
 
                 // Update objective names and reset statuses
-                newMandalart.objectives = newMandalart.objectives.map((objective, index) => ({
+                newMandalart.objectives = newMandalart.objectives.map((objective: MandalartItem, index: number) => ({
                     ...objective,
                     name: aiResult.objectives[index] || objective.name,
                     status: 'IN_PROGRESS',
                 }));
 
                 // Update action names and reset statuses
-                newMandalart.actions = newMandalart.actions.map((actionList) =>
-                    actionList.map((action) => ({
+                newMandalart.actions = newMandalart.actions.map((actionList: MandalartItem[]) =>
+                    actionList.map((action: MandalartItem) => ({
                         ...action,
                         status: 'IN_PROGRESS',
                     }))
                 );
-                newMandalart.actions.forEach((actionList, objIndex) => {
-                    actionList.forEach((action, actIndex) => {
+                newMandalart.actions.forEach((actionList: MandalartItem[], objIndex: number) => {
+                    actionList.forEach((action: MandalartItem, actIndex: number) => {
                         action.name = aiResult.actions[objIndex]?.[actIndex] || action.name;
                     });
                 });
@@ -94,7 +94,7 @@ const MandalartDetailPage: React.FC = () => {
             showSnackbar('주제와 연결된 모든 항목이 새로 제안되었습니다.', 'success');
 
             // Update objectives and actions via API
-            const updatePromises: Promise<any>[] = [];
+            const updatePromises: Promise<void>[] = [];
             currentMandalart.objectives.forEach((objective: MandalartItem, index: number) => {
                 const newObjectiveName = aiResult.objectives[index];
                 if (newObjectiveName) {
@@ -110,7 +110,7 @@ const MandalartDetailPage: React.FC = () => {
                 });
             });
             await Promise.all(updatePromises);
-        } catch (_error) {
+    } catch (_error) {
             console.error('AI update for subject failed:', _error);
             showSnackbar('AI 업데이트에 실패했습니다. 다시 시도해주세요.', 'error');
             setMandalart(currentMandalart);
@@ -133,9 +133,9 @@ const MandalartDetailPage: React.FC = () => {
             }
 
             // Optimistically update local state with AI results and reset statuses
-            setMandalart(prev => {
+            setMandalart((prev: MandalartData | null) => {
                 if (!prev) return null;
-                const newMandalart = JSON.parse(JSON.stringify(prev));
+                const newMandalart: MandalartData = JSON.parse(JSON.stringify(prev));
 
                 // Update objective name and status
                 const targetObjective = newMandalart.objectives[objectiveIndex];
@@ -145,7 +145,7 @@ const MandalartDetailPage: React.FC = () => {
                 }
 
                 // Update action names and reset statuses for the specific objective
-                newMandalart.actions[objectiveIndex] = newMandalart.actions[objectiveIndex].map((action, index) => ({
+                newMandalart.actions[objectiveIndex] = newMandalart.actions[objectiveIndex].map((action: MandalartItem, index: number) => ({
                     ...action,
                     name: aiResult.actions[index] || action.name,
                     status: 'IN_PROGRESS',
@@ -157,7 +157,7 @@ const MandalartDetailPage: React.FC = () => {
             showSnackbar('목표와 연결된 행동들이 새로 제안되었습니다.', 'success');
 
             // Update actions via API
-            const updatePromises: Promise<any>[] = [];
+            const updatePromises: Promise<void>[] = [];
             const targetActions = currentMandalart.actions[objectiveIndex];
             targetActions.forEach((action: MandalartItem, index: number) => {
                 const newActionName = aiResult.actions[index];
@@ -166,7 +166,7 @@ const MandalartDetailPage: React.FC = () => {
                 }
             });
             await Promise.all(updatePromises);
-        } catch (_error) {
+    } catch (_error) {
             console.error(`AI generation for objective ${objectiveIndex} failed:`, _error);
             showSnackbar('AI 업데이트에 실패했습니다. 다시 시도해주세요.', 'error');
             setMandalart(currentMandalart);
@@ -184,7 +184,7 @@ const MandalartDetailPage: React.FC = () => {
 
                 originalMandalartState = JSON.parse(JSON.stringify(prevMandalart));
 
-                const newMandalart = JSON.parse(JSON.stringify(prevMandalart)); // Deep copy for safe mutation
+                const newMandalart: MandalartData = JSON.parse(JSON.stringify(prevMandalart)); // Deep copy for safe mutation
 
                 let toggledActionObjectiveIndex: number | null = null;
 
@@ -200,12 +200,9 @@ const MandalartDetailPage: React.FC = () => {
                 } else if (itemType === 'objective') {
                     newMandalart.objectives = newMandalart.objectives.map(findAndToggle);
                 } else if (itemType === 'action') {
-                    let originalStatus: string | undefined;
-
                     newMandalart.actions = newMandalart.actions.map((objActions: MandalartItem[], objIndex: number) => {
                         const updatedActions = objActions.map(action => {
                             if (action.id === itemId) {
-                                originalStatus = action.status;
                                 toggledActionObjectiveIndex = objIndex;
                                 return {...action, status: action.status === 'DONE' ? 'IN_PROGRESS' : 'DONE'};
                             }
@@ -241,16 +238,15 @@ const MandalartDetailPage: React.FC = () => {
             });
 
             try {
-                // Find the original status of the clicked item to determine the new status for the API call
+                // Determine original status using the last committed state
+                const before = mandalartRef.current as MandalartData | null;
                 let originalStatus: string | undefined;
-                const flatActions = originalMandalartState?.actions.flat() || [];
-                const allItems = [
-                    ...(originalMandalartState ? [originalMandalartState.subject] : []),
-                    ...(originalMandalartState?.objectives || []),
-                    ...flatActions
-                ];
-                const originalItem = allItems.find(item => item.id === itemId);
-                originalStatus = originalItem?.status;
+                if (before) {
+                    const flatActions: MandalartItem[] = before.actions.flat();
+                    const allItems: MandalartItem[] = [before.subject, ...before.objectives, ...flatActions];
+                    const originalItem = allItems.find((item) => item.id === itemId);
+                    originalStatus = originalItem?.status;
+                }
 
                 const newStatus = originalStatus === 'DONE' ? 'IN_PROGRESS' : 'DONE';
 
@@ -263,7 +259,7 @@ const MandalartDetailPage: React.FC = () => {
                 }
 
                 showSnackbar('상태가 업데이트되었습니다.', 'success');
-            } catch (_error) {
+        } catch (_error) {
                 showSnackbar('상태 업데이트에 실패했습니다.', 'error');
                 if (originalMandalartState) {
                     setMandalart(originalMandalartState);
@@ -369,7 +365,7 @@ const MandalartDetailPage: React.FC = () => {
         try {
             await mandalartService.updateMandalartName(id, newName);
             showSnackbar('이름이 성공적으로 변경되었습니다.', 'success');
-        } catch (error) {
+    } catch (_error) {
             setMandalart(prev => {
                 if (!prev) return null;
                 const newMandalartData = JSON.parse(JSON.stringify(prev));

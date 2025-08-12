@@ -1,9 +1,9 @@
+import { useSnackbar } from '@/hooks/useSnackbar';
+import { authService } from '@/services/AuthService';
+import { userService } from '@/services/UserService';
+import useAuthStore from '@/store/authStore';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userService } from '@/services/UserService';
-import { authService } from '@/services/AuthService';
-import useAuthStore from '@/store/authStore';
-import { useSnackbar } from '@/hooks/useSnackbar';
 
 export const useUserSettings = () => {
     const navigate = useNavigate();
@@ -50,7 +50,7 @@ export const useUserSettings = () => {
             await authService.checkNicknameDuplication(nickname);
             setNicknameChecked(true);
             showSnackbar('사용 가능한 닉네임입니다.', 'success');
-        } catch (error) {
+    } catch (_error) {
             showSnackbar('이미 사용 중인 닉네임입니다.', 'error');
         } finally {
             setLoadingNicknameCheck(false);
@@ -70,7 +70,7 @@ export const useUserSettings = () => {
             const { updated: updatedNickname } = await userService.updateNickname(nickname);
             setStoreNickname(updatedNickname);
             showSnackbar('닉네임이 변경되었습니다.', 'success');
-        } catch (error) {
+    } catch (_error) {
             showSnackbar('닉네임 변경에 실패했습니다.', 'error');
         } finally {
             setLoadingNickname(false);
@@ -85,7 +85,7 @@ export const useUserSettings = () => {
             setIsPasswordVerified(true);
             setPasswordError('');
             showSnackbar('비밀번호가 확인되었습니다. 새 비밀번호를 입력하세요.', 'success');
-        } catch (error) {
+    } catch (_error) {
             setPasswordError('비밀번호가 일치하지 않습니다.');
         } finally {
             setLoadingPasswordVerify(false);
@@ -105,7 +105,7 @@ export const useUserSettings = () => {
             setNewPassword('');
             setNewPasswordConfirm('');
             setIsPasswordVerified(false);
-        } catch (error) {
+    } catch (_error) {
             showSnackbar('비밀번호 변경에 실패했습니다.', 'error');
         } finally {
             setLoadingPasswordUpdate(false);
@@ -119,7 +119,7 @@ export const useUserSettings = () => {
             setTempPassword(updated);
             setOpenTempPasswordDialog(true);
             showSnackbar('임시 비밀번호가 생성되었습니다.', 'success');
-        } catch (error) {
+    } catch (_error) {
             showSnackbar('임시 비밀번호 생성에 실패했습니다.', 'error');
         } finally {
             setLoadingPasswordReset(false);
@@ -138,7 +138,7 @@ export const useUserSettings = () => {
             showSnackbar('회원 탈퇴가 완료되었습니다.', 'success');
             logout();
             navigate('/');
-        } catch (error) {
+    } catch (_error) {
             showSnackbar('회원 탈퇴에 실패했습니다.', 'error');
         } finally {
             setLoadingDeleteAccount(false);

@@ -1,8 +1,8 @@
-import {useCallback, useState} from 'react';
-import {authService} from '@/services/AuthService';
+import { useSnackbar } from '@/hooks/useSnackbar';
+import { authService } from '@/services/AuthService';
 import useAuthStore from '@/store/authStore';
-import {useSnackbar} from '@/hooks/useSnackbar';
-import {useNavigate} from 'react-router-dom';
+import { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const validateEmail = (email: string) => {
     return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
@@ -31,7 +31,7 @@ export const useLoginForm = () => {
             setEmailError(false);
         }
 
-        if (password.length < 6) {
+    if (password.length < 8) {
             setPasswordError(true);
             valid = false;
         } else {
@@ -39,7 +39,7 @@ export const useLoginForm = () => {
         }
 
         if (!valid) {
-            showSnackbar('이메일 형식, 비밀번호 길이(최소 6자)를 확인해주세요.', 'warning');
+            showSnackbar('이메일 형식, 비밀번호 길이(최소 8자)를 확인해주세요.', 'warning');
             return;
         }
 

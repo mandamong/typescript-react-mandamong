@@ -1,8 +1,8 @@
-import {useCallback, useState, useRef, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {authService} from '@/services/AuthService';
+import { useSnackbar } from '@/hooks/useSnackbar';
+import { authService } from '@/services/AuthService';
 import useAuthStore from '@/store/authStore';
-import {useSnackbar} from '@/hooks/useSnackbar';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useSignUpForm = () => {
     const navigate = useNavigate();
@@ -52,11 +52,10 @@ export const useSignUpForm = () => {
 
     const validatePassword = (password: string) => {
         const hasMinLength = password.length >= 8;
-        const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
         const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        return hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
+        return hasMinLength && hasLowercase && hasNumber && hasSpecialChar;
     };
 
     const validateNickname = (nickname: string) => {

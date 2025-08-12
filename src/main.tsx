@@ -1,11 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import AppRouter from '@/router';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import theme from '@/theme';
-import { SnackbarProvider } from '@/contexts/SnackbarProvider';
 import { setupAxiosInterceptors } from '@/api/interceptor';
+import { SnackbarProvider } from '@/contexts/SnackbarProvider';
+import { ThemeModeProvider } from '@/contexts/ThemeModeContext';
+import AppRouter from '@/router';
+import CssBaseline from '@mui/material/CssBaseline';
+import ReactDOM from 'react-dom/client';
 import './index.css';
 
 setupAxiosInterceptors();
@@ -13,10 +11,10 @@ setupAxiosInterceptors();
 export const Root = () => {
   return (
     <SnackbarProvider>
-        <ThemeProvider theme={theme}>
+        <ThemeModeProvider>
           <CssBaseline />
           <AppRouter />
-        </ThemeProvider>
+        </ThemeModeProvider>
       </SnackbarProvider>
   );
 };

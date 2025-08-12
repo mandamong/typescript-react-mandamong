@@ -1,5 +1,5 @@
+import { Box, Button, CircularProgress, Stack, TextField } from '@mui/material';
 import React from 'react';
-import { Box, Button, CircularProgress, TextField, Stack, Grid } from '@mui/material';
 
 interface PasswordChangeProps {
     currentPassword: string;
@@ -32,44 +32,39 @@ const PasswordChange: React.FC<PasswordChangeProps> = ({
 }) => {
     return (
         <Stack spacing={2}>
-            {!isPasswordVerified ? (
-                <Grid container spacing={1} alignItems="flex-start">
-                    <Grid item xs>
-                        <TextField
-                            type="password"
-                            placeholder="현재 비밀번호"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            variant="filled"
-                            size="small"
-                            fullWidth
-                            hiddenLabel
-                            error={!!passwordError}
-                            helperText={passwordError}
-                            InputProps={{
-                                disableUnderline: true,
-                                sx: { borderRadius: 2, backgroundColor: 'white' }
-                            }}
-                        />
-                    </Grid>
-                    <Grid item xs="auto">
-                        <Button 
-                            onClick={handleVerifyPassword} 
-                            disabled={loadingPasswordVerify} 
-                            variant="contained"
-                            size="large"
-                            sx={{ 
-                                py: '7.5px', 
-                                px: 3,
-                                borderRadius: 2,
-                                fontWeight: 'bold'
-                            }}
-                        >
-                            {loadingPasswordVerify ? <CircularProgress size={24} color="inherit" /> : '확인'}
-                        </Button>
-                    </Grid>
-                </Grid>
-            ) : (
+                        {!isPasswordVerified ? (
+                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
+                                <Box sx={{ flex: 1, width: '100%' }}>
+                                    <TextField
+                                        type="password"
+                                        placeholder="현재 비밀번호"
+                                        value={currentPassword}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        variant="filled"
+                                        size="small"
+                                        fullWidth
+                                        hiddenLabel
+                                        error={!!passwordError}
+                                        helperText={passwordError}
+                                        InputProps={{
+                                            disableUnderline: true,
+                                            sx: { borderRadius: 2, backgroundColor: 'var(--field-bg)' },
+                                        }}
+                                    />
+                                </Box>
+                                <Box>
+                                    <Button
+                                        onClick={handleVerifyPassword}
+                                        disabled={loadingPasswordVerify}
+                                        variant="contained"
+                                        size="large"
+                                        sx={{ py: '7.5px', px: 3, borderRadius: 2, fontWeight: 'bold' }}
+                                    >
+                                        {loadingPasswordVerify ? <CircularProgress size={24} color="inherit" /> : '확인'}
+                                    </Button>
+                                </Box>
+                            </Stack>
+                        ) : (
                 <Stack component="form" spacing={2} noValidate autoComplete="off">
                     <TextField
                         type="password"
@@ -82,7 +77,7 @@ const PasswordChange: React.FC<PasswordChangeProps> = ({
                         hiddenLabel
                         InputProps={{
                             disableUnderline: true,
-                            sx: { borderRadius: 2, backgroundColor: 'white' }
+                            sx: { borderRadius: 2, backgroundColor: 'var(--field-bg)' }
                         }}
                     />
                     <TextField
@@ -96,7 +91,7 @@ const PasswordChange: React.FC<PasswordChangeProps> = ({
                         hiddenLabel
                         InputProps={{
                             disableUnderline: true,
-                            sx: { borderRadius: 2, backgroundColor: 'white' }
+                            sx: { borderRadius: 2, backgroundColor: 'var(--field-bg)' }
                         }}
                     />
                     <Button 

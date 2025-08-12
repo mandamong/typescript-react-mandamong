@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Container, Paper, Typography, Box, Stack, Divider, Collapse } from '@mui/material';
-import { useUserSettings } from '@/hooks/useUserSettings';
+import AccountManagement from '@/components/settings/AccountManagement';
 import NicknameChange from '@/components/settings/NicknameChange';
 import PasswordChange from '@/components/settings/PasswordChange';
-import AccountManagement from '@/components/settings/AccountManagement';
 import SettingsListItem from '@/components/settings/SettingsListItem';
+import { useUserSettings } from '@/hooks/useUserSettings';
+import { Box, Collapse, Container, Divider, Paper, Stack, Typography } from '@mui/material';
+import React, { useState } from 'react';
 
 import EditIcon from '@mui/icons-material/Edit';
 import LockResetIcon from '@mui/icons-material/LockReset';
@@ -32,9 +32,17 @@ const SettingsPage: React.FC = () => {
                             onClick={handleToggle('nickname')} 
                             open={open === 'nickname'} 
                         />
-                        <Collapse in={open === 'nickname'} timeout="auto" unmountOnExit>
-                            <Box sx={{ p: 2, backgroundColor: '#f7f7f7' }}>
-                                <NicknameChange {...userSettings} />
+                                                <Collapse in={open === 'nickname'} timeout="auto" unmountOnExit>
+                                                        <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
+                                                                <NicknameChange
+                                                                    nickname={userSettings.nickname}
+                                                                    setNickname={userSettings.setNickname}
+                                                                    handleUpdateNickname={userSettings.handleUpdateNickname}
+                                                                    handleCheckNickname={userSettings.handleCheckNickname}
+                                                                    loading={userSettings.loadingNickname}
+                                                                    loadingCheck={userSettings.loadingNicknameCheck}
+                                                                    nicknameChecked={userSettings.nicknameChecked}
+                                                                />
                             </Box>
                         </Collapse>
 
@@ -44,9 +52,22 @@ const SettingsPage: React.FC = () => {
                             onClick={handleToggle('password')}
                             open={open === 'password'}
                         />
-                        <Collapse in={open === 'password'} timeout="auto" unmountOnExit>
-                            <Box sx={{ p: 2, backgroundColor: '#f7f7f7' }}>
-                                <PasswordChange {...userSettings} />
+                                                <Collapse in={open === 'password'} timeout="auto" unmountOnExit>
+                                                        <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
+                                                                <PasswordChange
+                                                                    currentPassword={userSettings.currentPassword}
+                                                                    setCurrentPassword={userSettings.setCurrentPassword}
+                                                                    newPassword={userSettings.newPassword}
+                                                                    setNewPassword={userSettings.setNewPassword}
+                                                                    newPasswordConfirm={userSettings.newPasswordConfirm}
+                                                                    setNewPasswordConfirm={userSettings.setNewPasswordConfirm}
+                                                                    isPasswordVerified={userSettings.isPasswordVerified}
+                                                                    passwordError={userSettings.passwordError}
+                                                                    loadingPasswordVerify={userSettings.loadingPasswordVerify}
+                                                                    loadingPasswordUpdate={userSettings.loadingPasswordUpdate}
+                                                                    handleVerifyPassword={userSettings.handleVerifyPassword}
+                                                                    handleUpdatePassword={userSettings.handleUpdatePassword}
+                                                                />
                             </Box>
                         </Collapse>
 
@@ -57,7 +78,7 @@ const SettingsPage: React.FC = () => {
                             open={open === 'account'}
                         />
                         <Collapse in={open === 'account'} timeout="auto" unmountOnExit>
-                            <Box sx={{ p: 2, backgroundColor: '#f7f7f7' }}>
+                            <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
                                 <AccountManagement {...userSettings} />
                             </Box>
                         </Collapse>

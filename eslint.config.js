@@ -1,9 +1,9 @@
 import js from '@eslint/js'
-import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
 export default tseslint.config([
   globalIgnores(['dist']),
@@ -24,6 +24,26 @@ export default tseslint.config([
         'error',
         { 'varsIgnorePattern': '^_', 'argsIgnorePattern': '^_', 'caughtErrorsIgnorePattern': '^_' },
       ],
+    },
+  },
+  // Loosen rules for generated code and type augmentations
+  {
+    files: ['src/api/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['src/types/**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: ['src/utils/tokenRefresh.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ])

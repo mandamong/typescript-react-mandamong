@@ -1,5 +1,5 @@
-import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import useAuthStore from '@/store/authStore';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: '/api',
@@ -7,6 +7,7 @@ const axiosInstance: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use(

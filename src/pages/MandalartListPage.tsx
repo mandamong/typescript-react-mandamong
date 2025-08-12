@@ -1,11 +1,11 @@
-import React from 'react';
-import {Link as RouterLink} from 'react-router-dom';
-import {Box, Card, CardActionArea, CardContent, Chip, CircularProgress, Fab, Typography,} from '@mui/material';
+import { useMandalartList } from '@/hooks/useMandalartList'; // Import the custom hook
 import AddIcon from '@mui/icons-material/Add'; // Corrected import
-import {useMandalartList} from '@/hooks/useMandalartList'; // Import the custom hook
+import { Box, Button, Card, CardActionArea, CardContent, Chip, CircularProgress, Fab, Typography } from '@mui/material';
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 const MandalartListPage: React.FC = () => {
-    const {mandalarts, loading} = useMandalartList();
+    const {mandalarts, loading, hasNext, loadMore, loadingMore} = useMandalartList();
 
     const getStatusInKorean = (status: string) => {
         switch (status) {
@@ -56,6 +56,13 @@ const MandalartListPage: React.FC = () => {
                 </Box>
             ) : (
                 <Typography>생성된 만다르트가 없습니다.</Typography>
+            )}
+            {!loading && mandalarts.length > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                    <Button variant="outlined" onClick={loadMore} disabled={!hasNext || loadingMore}>
+                        {loadingMore ? '불러오는 중…' : hasNext ? '더 보기' : '모두 확인했습니다'}
+                    </Button>
+                </Box>
             )}
             <Fab
                 color="primary"

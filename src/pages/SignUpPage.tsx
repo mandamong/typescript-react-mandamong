@@ -1,5 +1,10 @@
-import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import EmailVerificationSection from '@/components/signup/EmailVerificationSection';
+import LanguageSelect from '@/components/signup/LanguageSelect';
+import NicknameSection from '@/components/signup/NicknameSection';
+import PasswordSection from '@/components/signup/PasswordSection';
+import ProfileImageUpload from '@/components/signup/ProfileImageUpload';
+import { useSignUpForm } from '@/hooks/useSignUpForm';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import {
   Avatar,
   Box,
@@ -7,16 +12,12 @@ import {
   CircularProgress,
   Container,
   Link,
+  Paper,
   Stack,
   Typography,
 } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useSignUpForm } from '@/hooks/useSignUpForm';
-import EmailVerificationSection from '@/components/signup/EmailVerificationSection';
-import PasswordSection from '@/components/signup/PasswordSection';
-import ProfileImageUpload from '@/components/signup/ProfileImageUpload';
-import LanguageSelect from '@/components/signup/LanguageSelect';
-import NicknameSection from '@/components/signup/NicknameSection';
+import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 const SignUpPage: React.FC = () => {
   const {
@@ -65,23 +66,22 @@ const SignUpPage: React.FC = () => {
   } = useSignUpForm();
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          회원가입
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 3 }}>
-          <Stack spacing={2}>
+    <Container component="main" maxWidth="sm">
+      <Box sx={{ mt: { xs: 4, md: 8 }, mb: { xs: 4, md: 8 } }}>
+        <Paper elevation={0} sx={{ p: { xs: 3, md: 5 } }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+            <Avatar sx={{ bgcolor: 'primary.main', mb: 1 }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5" sx={{ fontWeight: 800 }}>
+              회원가입
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              계정을 생성하고 만다르트를 만들어보세요.
+            </Typography>
+          </Box>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <Stack spacing={2.5}>
             <EmailVerificationSection
               email={email}
               setEmail={setEmail}
@@ -134,24 +134,23 @@ const SignUpPage: React.FC = () => {
             />
 
             <LanguageSelect language={language} setLanguage={setLanguage} />
-          </Stack>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={loadingSignUp}
-          >
-            {loadingSignUp ? <CircularProgress size={24} /> : '회원가입'}
-          </Button>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Box>
-              <Link component={RouterLink} to="/login" variant="body2">
-                로그인
+            </Stack>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 1.5 }}
+              disabled={loadingSignUp}
+            >
+              {loadingSignUp ? <CircularProgress size={24} /> : '회원가입'}
+            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Link component={RouterLink} to="/login" variant="body2" color="primary">
+                이미 계정이 있으신가요? 로그인
               </Link>
             </Box>
           </Box>
-        </Box>
+        </Paper>
       </Box>
     </Container>
   );

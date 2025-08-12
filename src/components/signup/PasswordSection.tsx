@@ -1,5 +1,5 @@
+import { Stack, TextField } from '@mui/material';
 import React from 'react';
-import {Stack, TextField} from '@mui/material';
 
 interface PasswordSectionProps {
     password: string;
@@ -25,10 +25,10 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
     return (
         <Stack spacing={2} sx={{width: '100%'}}>
             <TextField
-                
+                required
                 fullWidth
                 name="password"
-                label={<>비밀번호 <span style={{ color: 'red' }}>*</span></>}
+                label={"비밀번호"}
                 type="password"
                 id="password"
                 autoComplete="new-password"
@@ -38,13 +38,13 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
                     setPasswordError(false);
                 }}
                 error={passwordError}
-                helperText={passwordError ? '비밀번호는 6자 이상이어야 합니다.' : ''}
+                helperText={passwordError ? '비밀번호는 8자 이상이며, 대문자/소문자/숫자/특수문자를 포함해야 합니다.' : ''}
             />
             <TextField
-                
+                required
                 fullWidth
                 name="passwordConfirm"
-                label={<>비밀번호 재입력 <span style={{ color: 'red' }}>*</span></>}
+                label={"비밀번호 재입력"}
                 type="password"
                 id="passwordConfirm"
                 autoComplete="new-password"

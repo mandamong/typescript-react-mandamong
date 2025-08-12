@@ -11,14 +11,14 @@ export const isStringWithValue = (value: unknown): value is string => {
 };
 
 export const isBlob = (value: unknown): value is Blob => {
+    if (typeof value !== 'object' || value === null) return false;
+    const v = value as Partial<Blob> & { [Symbol.toStringTag]?: unknown };
     return (
-        typeof value === 'object' &&
-        value !== null &&
-        'type' in value && typeof (value as Blob).type === 'string' &&
-        'stream' in value && typeof (value as Blob).stream === 'function' &&
-        'arrayBuffer' in value && typeof (value as Blob).arrayBuffer === 'function' &&
-        typeof (value as any)[Symbol.toStringTag] === 'string' &&
-        (value as any)[Symbol.toStringTag] === 'Blob'
+        typeof (v as Blob).type === 'string' &&
+        typeof v.stream === 'function' &&
+        typeof v.arrayBuffer === 'function' &&
+        typeof v[Symbol.toStringTag] === 'string' &&
+        v[Symbol.toStringTag] === 'Blob'
     );
 };
 
@@ -33,7 +33,7 @@ export const isSuccess = (status: number): boolean => {
 export const base64 = (str: string): string => {
     try {
         return btoa(str);
-    } catch (err) {
+    } catch (_err) {
         return 'An unknown error occurred.';
     }
 };

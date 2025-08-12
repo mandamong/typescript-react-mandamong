@@ -1,8 +1,8 @@
+import { Box, Paper } from '@mui/material';
+import { blue, green, orange, pink, purple, red, teal, yellow } from '@mui/material/colors';
 import React from 'react';
-import {Box, Paper} from '@mui/material';
-import {blue, green, orange, pink, purple, red, teal, yellow} from '@mui/material/colors';
 import Cell from './Cell';
-import type {ColorPalette, Item} from './types';
+import type { ColorPalette, Item } from './types';
 
 export interface MandalartGridData {
     mandalart: { id: number; name: string; status?: string };
@@ -130,7 +130,8 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
                             <Paper sx={{
                                 height: '100%',
                                 boxSizing: 'border-box',
-                                backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                                backgroundColor: 'var(--field-bg)',
+                                opacity: 0.5,
                                 borderRadius: 4
                             }}/>
                         )}

@@ -1,5 +1,5 @@
+import { Box, Button, CircularProgress, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import React from 'react';
-import {Box, Button, CircularProgress, InputAdornment, Stack, TextField, Typography} from '@mui/material';
 
 interface EmailVerificationSectionProps {
     email: string;
@@ -43,12 +43,12 @@ const EmailVerificationSection: React.FC<EmailVerificationSectionProps> = ({
     handleVerifyCode,
 }) => {
     return (
-        <Stack spacing={2} sx={{width: '100%'}}>
+    <Stack spacing={2} sx={{width: '100%'}}>
             <TextField
-                
+                required
                 fullWidth
                 id="email"
-                label={<>이메일 <span style={{ color: 'red' }}>*</span></>}
+                label={"이메일"}
                 name="email"
                 autoComplete="username"
                 value={email}
@@ -63,9 +63,9 @@ const EmailVerificationSection: React.FC<EmailVerificationSectionProps> = ({
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
-                            <Button
+                <Button
                                 onClick={handleCheckEmail}
-                                disabled={!email || loadingEmailCheck || emailChecked}
+                disabled={!email || loadingEmailCheck || emailChecked}
                             >
                                 {loadingEmailCheck ? <CircularProgress size={24}/> : '중복확인'}
                             </Button>
@@ -75,10 +75,10 @@ const EmailVerificationSection: React.FC<EmailVerificationSectionProps> = ({
             />
             {emailChecked && (
                 <>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <Button
                             fullWidth
-                            variant="outlined"
+                variant="outlined"
                             onClick={handleRequestVerification}
                             disabled={loadingRequestVerification || emailVerified || resendCooldown > 0}
                         >
@@ -89,7 +89,7 @@ const EmailVerificationSection: React.FC<EmailVerificationSectionProps> = ({
                             )}
                         </Button>
                         {isCodeSent && !emailVerified && (
-                             <Typography variant="body2" sx={{ minWidth: '70px', textAlign: 'right' }}>
+                 <Typography variant="body2" color="text.secondary" sx={{ minWidth: '70px', textAlign: 'right' }}>
                                 {resendCooldown > 0 ? `(${resendCooldown}s)` : '재전송 가능'}
                             </Typography>
                         )}

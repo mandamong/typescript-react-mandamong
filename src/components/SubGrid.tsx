@@ -1,7 +1,7 @@
+import { Box, Paper } from '@mui/material';
 import React from 'react';
-import {Box, Paper} from '@mui/material';
 import Cell from './Cell';
-import type {ColorPalette, Item} from './types';
+import type { ColorPalette, Item } from './types';
 
 interface SubGridProps {
     objective: Item;
@@ -59,7 +59,8 @@ const SubGrid: React.FC<SubGridProps> = ({
                         <Paper sx={{
                             height: '100%',
                             boxSizing: 'border-box',
-                            backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                            backgroundColor: 'var(--field-bg)',
+                            opacity: 0.5,
                             borderRadius: 2
                         }}/>
                     )}

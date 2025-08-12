@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {Box, CircularProgress, IconButton, Paper, TextField, Tooltip, Typography,} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import EditIcon from '@mui/icons-material/Edit';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import type {ColorPalette} from './types';
+import { Box, CircularProgress, IconButton, Paper, TextField, Tooltip, Typography, } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import type { ColorPalette } from './types';
 
 interface CellProps {
     id: number;
@@ -81,10 +81,14 @@ const Cell: React.FC<CellProps> = ({
     if (isMainSubject) {
         cellStyle.backgroundColor = 'primary.main';
         cellStyle.color = 'primary.contrastText';
-        cellStyle.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        cellStyle.boxShadow = '0 6px 16px rgba(0,0,0,0.18)';
     } else if (isCenter && palette) {
-        cellStyle.backgroundColor = palette.light;
-        cellStyle.color = palette.dark;
+        // Theme-aware styling to emphasize objectives
+        cellStyle.backgroundColor = 'var(--field-bg)';
+        cellStyle.color = 'var(--text-primary)';
+        cellStyle.border = '2px solid';
+        cellStyle.borderColor = palette.main;
+        cellStyle.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
     } else {
         cellStyle.backgroundColor = 'background.paper';
         cellStyle.border = '1px solid';
@@ -149,10 +153,10 @@ const Cell: React.FC<CellProps> = ({
                     InputProps={{disableUnderline: true}}
                 />
             ) : (
-                <Typography
+        <Typography
                     sx={{
-                        fontWeight: isMainSubject ? 'bold' : (isCenter ? 'medium' : 'normal'),
-                        fontSize: {xs: '0.6rem', sm: isMainSubject ? '1.1rem' : (isCenter ? '0.9rem' : '0.8rem')},
+            fontWeight: isMainSubject ? 800 : (isCenter ? 600 : 500),
+            fontSize: {xs: isMainSubject ? '0.85rem' : (isCenter ? '0.7rem' : '0.65rem'), sm: isMainSubject ? '1.15rem' : (isCenter ? '0.95rem' : '0.85rem')},
                         lineHeight: 1.3,
                         wordBreak: 'break-word',
                         textDecoration: isDone ? 'line-through' : 'none',
@@ -173,7 +177,7 @@ const Cell: React.FC<CellProps> = ({
                         transition: 'opacity 0.2s',
                         display: 'flex',
                         gap: 0.5,
-                        backgroundColor: 'rgba(255,255,255,0.5)',
+                        backgroundColor: 'action.hover',
                         borderRadius: '12px',
                         padding: '2px',
                     }}
