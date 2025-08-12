@@ -20,6 +20,7 @@ export const setupAxiosInterceptors = () => {
 
                 const {refreshToken, logout} = useAuthStore.getState();
 
+                // 로그인 상태(리프레시 토큰 보유)에서만 토큰 갱신/리다이렉트 처리
                 if (refreshToken) {
                     try {
                         const newTokens = await authService.refreshToken(refreshToken);
@@ -44,8 +45,7 @@ export const setupAxiosInterceptors = () => {
                     }
                 }
 
-                logout();
-                window.location.href = '/login';
+                // 비로그인 상태(리프레시 토큰 없음)의 401은 리다이렉트하지 않고 호출측에서 처리하도록 전달
                 return Promise.reject(error);
             }
 
@@ -103,8 +103,7 @@ export const setupErrorInterceptor = (_showSnackbar?: (msg: string, variant?: 'e
 
         const { refreshToken, setToken, setRefreshToken, logout } = useAuthStore.getState();
         if (!refreshToken) {
-            logout();
-            if (typeof window !== 'undefined') window.location.href = '/login';
+            // 비로그인 상태의 401은 리다이렉트하지 않고 그대로 반환
             return response;
         }
 
@@ -130,9 +129,9 @@ export const setupErrorInterceptor = (_showSnackbar?: (msg: string, variant?: 'e
             // fallthrough to logout
         }
 
-        // On failure, logout and redirect
-        logout();
-        if (typeof window !== 'undefined') window.location.href = '/login';
-        return response;
+    // On failure with logged-in state, logout and redirect
+    logout();
+    if (typeof window !== 'undefined') window.location.href = '/login';
+    return response;
     });
 };
