@@ -1,6 +1,7 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import AddIcon from '@mui/icons-material/Add';
 import { Box, CircularProgress, IconButton, Paper, TextField, Tooltip, Typography, } from '@mui/material';
 import { lighten, useTheme } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
@@ -14,10 +15,12 @@ interface CellProps {
     palette: ColorPalette;
     updateItemName: (itemId: number, itemType: 'subject' | 'objective' | 'action', newName: string) => void;
     updateItemStatus: (itemId: number, itemType: 'subject' | 'objective' | 'action') => void;
+    onCreateSubMandalart?: (itemId: number, itemType: 'objective' | 'action', itemName: string) => void;
     isCenter?: boolean;
     isMainSubject?: boolean;
     loadingSubjectAI?: boolean;
     loadingObjectiveAI?: number | null;
+    loadingSubMandalartAI?: boolean;
     objectiveIndex?: number;
     readOnly?: boolean;
 }
@@ -30,10 +33,12 @@ const Cell: React.FC<CellProps> = ({
                                        palette,
                                        updateItemName,
                                        updateItemStatus,
+                                       onCreateSubMandalart,
                                        isCenter = false,
                                        isMainSubject = false,
                                        loadingSubjectAI = false,
                                        loadingObjectiveAI = null,
+                                       loadingSubMandalartAI = false,
                                        objectiveIndex,
                                        readOnly = false
                                    }) => {
@@ -211,6 +216,22 @@ const Cell: React.FC<CellProps> = ({
                             <EditIcon sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}/>
                         </IconButton>
                     </Tooltip>
+                    {(type === 'objective' || type === 'action') && onCreateSubMandalart && (
+                        <Tooltip title="서브 만다르트 생성">
+                            <IconButton 
+                                size="small" 
+                                onClick={() => onCreateSubMandalart(id, type, name)}
+                                disabled={loadingSubMandalartAI}
+                                sx={{color: 'text.secondary', padding: '2px'}}
+                            >
+                                {loadingSubMandalartAI ? (
+                                    <CircularProgress size={12} sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}} />
+                                ) : (
+                                    <AddIcon sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}/>
+                                )}
+                            </IconButton>
+                        </Tooltip>
+                    )}
                     {canChangeStatus && (
                         <Tooltip title={isDone ? 'Mark as In Progress' : 'Mark as Done'}>
                             <IconButton size="small" onClick={handleUpdateStatus}

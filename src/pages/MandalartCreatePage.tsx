@@ -1,4 +1,5 @@
-import React, {useCallback} from 'react';
+import MandalartGrid from '@/components/MandalartGrid';
+import { useMandalartCreateForm } from '@/hooks/useMandalartCreateForm';
 import {
     Box,
     Button,
@@ -10,8 +11,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import {useMandalartCreateForm} from '@/hooks/useMandalartCreateForm';
-import MandalartGrid from '@/components/MandalartGrid';
+import React, { useCallback } from 'react';
 
 const steps = ['기본 정보 입력', '만다라트 수정 및 저장'];
 
@@ -76,14 +76,14 @@ const MandalartCreatePage: React.FC = () => {
             {activeStep === 0 && (
                 <Paper elevation={3} sx={{p: 3}}>
                     <TextField
-                        label="이름"
+                        label="만다라트 이름"
                         fullWidth
                         value={name}
                         onChange={(e) => setMandalartName(e.target.value)}
                         sx={{mb: 2}}
                     />
                     <TextField
-                        label="주제"
+                        label="이루고 싶은 주제"
                         fullWidth
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
@@ -121,6 +121,43 @@ const MandalartCreatePage: React.FC = () => {
                         loadingSubjectAI={loadingSubjectAI}
                         loadingObjectiveAI={loadingObjectiveAI}
                     />
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handleGenerateWithAI(subject)}
+                            disabled={loadingSubjectAI || !subject}
+                            sx={{ mr: 2 }}
+                        >
+                            {loadingSubjectAI ? <CircularProgress size={20} /> : '전체 AI 제안 다시 받기'}
+                        </Button>
+                    </Box>
+                    
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="h6" sx={{ mb: 1, textAlign: 'center' }}>목표별 실행계획 재생성</Typography>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
+                            {objectives.map((objective, index) => (
+                                <Button
+                                    key={index}
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => handleGenerateObjectiveWithAI(objective, index)}
+                                    disabled={loadingObjectiveAI === index || !objective.trim()}
+                                    sx={{ 
+                                        textAlign: 'left',
+                                        justifyContent: 'flex-start',
+                                        textTransform: 'none',
+                                        fontSize: '0.875rem'
+                                    }}
+                                >
+                                    {loadingObjectiveAI === index ? (
+                                        <CircularProgress size={16} sx={{ mr: 1 }} />
+                                    ) : null}
+                                    {objective ? `"${objective.length > 15 ? objective.slice(0, 15) + '...' : objective}" 재생성` : `목표 ${index + 1} (비어있음)`}
+                                </Button>
+                            ))}
+                        </Box>
+                    </Box>
+
                     <Box sx={{display: 'flex', justifyContent: 'space-between', mt: 3}}>
                         <Button onClick={() => setActiveStep(0)} disabled={loadingSave}>
                             이전

@@ -18,8 +18,10 @@ interface MandalartGridProps {
     data: MandalartGridData;
     updateItemName: (itemId: number, itemType: 'subject' | 'objective' | 'action', newName: string) => void;
     updateItemStatus: (itemId: number, itemType: 'subject' | 'objective' | 'action') => void;
+    onCreateSubMandalart?: (itemId: number, itemType: 'objective' | 'action', itemName: string) => void;
     loadingSubjectAI?: boolean;
     loadingObjectiveAI?: number | null;
+    loadingSubMandalartAI?: boolean;
     readOnly?: boolean;
     /**
      * autoFit: 화면 높이에 맞게 그리드를 scale로 축소 (기본 true)
@@ -48,8 +50,10 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
     data,
     updateItemName,
     updateItemStatus,
+    onCreateSubMandalart,
     loadingSubjectAI,
     loadingObjectiveAI,
+    loadingSubMandalartAI,
     readOnly = false,
     autoFit = true,
     reservedVertical = 140,
@@ -288,10 +292,12 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
                                     palette={cellData.palette || { light: '', main: '', dark: '' }}
                                     updateItemName={updateItemName}
                                     updateItemStatus={updateItemStatus}
+                                    onCreateSubMandalart={onCreateSubMandalart}
                                     isMainSubject={cellData.isMainSubject}
                                     isCenter={cellData.isCenter}
                                     loadingSubjectAI={loadingSubjectAI}
                                     loadingObjectiveAI={loadingObjectiveAI}
+                                    loadingSubMandalartAI={loadingSubMandalartAI}
                                     objectiveIndex={cellData.objIndex}
                                     readOnly={readOnly}
                                 />

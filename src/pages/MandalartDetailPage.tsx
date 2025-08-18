@@ -18,6 +18,9 @@ import {
     DialogTitle,
     IconButton,
     Paper,
+    Step,
+    StepLabel,
+    Stepper,
     TextField,
     Typography,
 } from '@mui/material';
@@ -42,6 +45,19 @@ const MandalartDetailPage: React.FC = () => {
     const [loadingSubjectAI, setLoadingSubjectAI] = useState(false);
     const [loadingObjectiveAI, setLoadingObjectiveAI] = useState<number | null>(null);
     const [loadingDelete, setLoadingDelete] = useState(false); // New loading state for delete
+
+    // 서브 만다르트 생성 관련 상태
+    const [openSubMandalartDialog, setOpenSubMandalartDialog] = useState(false);
+    const [subMandalartStep, setSubMandalartStep] = useState(0);
+    const [subMandalartData, setSubMandalartData] = useState<{
+        itemName: string;
+        mandalartName: string;
+        subject: string;
+        objectives: string[];
+        actions: string[][];
+    } | null>(null);
+    const [loadingSubMandalartAI, setLoadingSubMandalartAI] = useState(false);
+    const [loadingSubMandalartSave, setLoadingSubMandalartSave] = useState(false);
 
     // Extracted AI update and save functions
     const handleSubjectAIUpdateAndSave = useCallback(async (subjectId: string, newSubjectName: string, currentMandalart: MandalartData) => {
@@ -269,6 +285,140 @@ const MandalartDetailPage: React.FC = () => {
         [setMandalart, showSnackbar],
     );
 
+    const handleCreateSubMandalart = useCallback(
+        async (_itemId: number, _itemType: 'objective' | 'action', itemName: string) => {
+            // 초기 데이터 설정하고 다이얼로그 열기
+            setSubMandalartData({
+                itemName,
+                mandalartName: `${itemName} 세부 계획`,
+                subject: itemName,
+                objectives: ['', '', '', '', '', '', '', ''],
+                actions: [
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', '']
+                ]
+            });
+            setSubMandalartStep(0);
+            setOpenSubMandalartDialog(true);
+        },
+        []
+    );
+
+    const handleSubMandalartGoToNextStep = useCallback(async () => {
+        if (!subMandalartData) return;
+        
+        setLoadingSubMandalartAI(true);
+        try {
+            const aiResult = await mandalartService.generateGeminiSubject(subMandalartData.subject);
+            
+            if (aiResult && aiResult.objectives && aiResult.objectives.length > 0 && aiResult.actions && aiResult.actions.length > 0) {
+                setSubMandalartData(prev => prev ? {
+                    ...prev,
+                    objectives: aiResult.objectives,
+                    actions: aiResult.actions
+                } : null);
+                showSnackbar('AI 제안이 생성되었습니다.', 'success');
+            } else {
+                showSnackbar('AI 제안 생성에 실패했습니다. 직접 입력해주세요.', 'warning');
+            }
+            setSubMandalartStep(1);
+        } catch (error) {
+            console.error('AI 제안 생성 실패:', error);
+            showSnackbar('AI 제안 생성에 실패했습니다. 직접 입력해주세요.', 'error');
+            setSubMandalartStep(1);
+        } finally {
+            setLoadingSubMandalartAI(false);
+        }
+    }, [subMandalartData, showSnackbar]);
+
+    const handleGenerateSubMandalartWithAI = useCallback(async () => {
+        if (!subMandalartData) return;
+        
+        setLoadingSubMandalartAI(true);
+        try {
+            const aiResult = await mandalartService.generateGeminiSubject(subMandalartData.subject);
+            
+            if (!aiResult || !aiResult.objectives || aiResult.objectives.length === 0 || !aiResult.actions || aiResult.actions.length === 0) {
+                showSnackbar('AI 제안을 생성하지 못했습니다.', 'warning');
+                return;
+            }
+
+            setSubMandalartData(prev => prev ? {
+                ...prev,
+                objectives: aiResult.objectives,
+                actions: aiResult.actions
+            } : null);
+            
+            showSnackbar('AI 제안이 다시 생성되었습니다.', 'success');
+        } catch (error) {
+            console.error('AI 제안 생성 실패:', error);
+            showSnackbar('AI 제안 생성에 실패했습니다.', 'error');
+        } finally {
+            setLoadingSubMandalartAI(false);
+        }
+    }, [subMandalartData, showSnackbar]);
+
+    const handleSubMandalartItemNameChange = useCallback((itemId: number, itemType: 'subject' | 'objective' | 'action', newName: string) => {
+        if (!subMandalartData) return;
+        
+        if (itemType === 'subject') {
+            setSubMandalartData(prev => prev ? {...prev, subject: newName} : null);
+        } else if (itemType === 'objective') {
+            setSubMandalartData(prev => prev ? {
+                ...prev,
+                objectives: prev.objectives.map((obj, index) => index === itemId ? newName : obj)
+            } : null);
+        } else if (itemType === 'action') {
+            const objIndex = Math.floor(itemId / 100);
+            const actIndex = itemId % 100;
+            setSubMandalartData(prev => prev ? {
+                ...prev,
+                actions: prev.actions.map((actionList, oIndex) => 
+                    oIndex === objIndex 
+                        ? actionList.map((action, aIndex) => aIndex === actIndex ? newName : action)
+                        : actionList
+                )
+            } : null);
+        }
+    }, [subMandalartData]);
+
+    const handleSubMandalartItemStatusChange = useCallback(() => {
+        // 서브 만다르트 생성 중에는 상태 변경 불가
+    }, []);
+
+    const handleSaveSubMandalart = useCallback(async () => {
+        if (!subMandalartData) return;
+        
+        setLoadingSubMandalartSave(true);
+        try {
+            const newMandalart = await mandalartService.createMandalart({
+                name: subMandalartData.mandalartName,
+                subject: subMandalartData.subject,
+                objectives: subMandalartData.objectives,
+                actions: subMandalartData.actions
+            });
+            
+            showSnackbar('서브 만다르트가 생성되었습니다.', 'success');
+            setOpenSubMandalartDialog(false);
+            setSubMandalartData(null);
+            
+            if (newMandalart?.mandalart?.id) {
+                navigate(`/mandalart/${newMandalart.mandalart.id}`);
+            }
+        } catch (error) {
+            console.error('서브 만다르트 생성 실패:', error);
+            showSnackbar('서브 만다르트 생성에 실패했습니다.', 'error');
+        } finally {
+            setLoadingSubMandalartSave(false);
+        }
+    }, [subMandalartData, navigate, showSnackbar]);
+
     const updateMandalartItemName = useCallback(
         async (itemId: number, itemType: 'subject' | 'objective' | 'action', newName: string) => {
             if (!mandalart) return;
@@ -428,8 +578,10 @@ const MandalartDetailPage: React.FC = () => {
                 data={mandalart}
                 updateItemName={updateMandalartItemName}
                 updateItemStatus={updateMandalartItemStatus}
+                onCreateSubMandalart={handleCreateSubMandalart}
                 loadingSubjectAI={loadingSubjectAI}
                 loadingObjectiveAI={loadingObjectiveAI}
+                loadingSubMandalartAI={loadingSubMandalartAI}
             />
 
             <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
@@ -442,6 +594,107 @@ const MandalartDetailPage: React.FC = () => {
                 <DialogActions>
                     <Button onClick={() => setOpenDeleteDialog(false)} disabled={loadingDelete}>취소</Button>
                     <Button onClick={handleDelete} autoFocus color="error" disabled={loadingDelete}>삭제</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog 
+                open={openSubMandalartDialog} 
+                onClose={() => setOpenSubMandalartDialog(false)}
+                maxWidth="lg"
+                fullWidth
+            >
+                <DialogTitle>서브 만다르트 생성</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ width: '100%', pt: 1 }}>
+                        <Stepper activeStep={subMandalartStep} alternativeLabel sx={{ mb: 4 }}>
+                            <Step>
+                                <StepLabel>기본 정보 입력</StepLabel>
+                            </Step>
+                            <Step>
+                                <StepLabel>만다라트 수정 및 저장</StepLabel>
+                            </Step>
+                        </Stepper>
+
+                        {subMandalartStep === 0 && (
+                            <Box>
+                                <TextField
+                                    label="만다르트 이름"
+                                    fullWidth
+                                    value={subMandalartData?.mandalartName || ''}
+                                    onChange={(e) => setSubMandalartData(prev => prev ? {...prev, mandalartName: e.target.value} : null)}
+                                    sx={{ mb: 2 }}
+                                />
+                                <TextField
+                                    label="이루고 싶은 주제"
+                                    fullWidth
+                                    value={subMandalartData?.subject || ''}
+                                    onChange={(e) => setSubMandalartData(prev => prev ? {...prev, subject: e.target.value} : null)}
+                                />
+                            </Box>
+                        )}
+
+                        {subMandalartStep === 1 && subMandalartData && (
+                            <Box>
+                                <MandalartGrid
+                                    data={{
+                                        mandalart: { id: 0, name: subMandalartData.mandalartName },
+                                        subject: { id: 0, name: subMandalartData.subject },
+                                        objectives: subMandalartData.objectives.map((name, index) => ({ id: index, name })),
+                                        actions: subMandalartData.actions.map((actionList, objIndex) =>
+                                            actionList.map((name, actionIndex) => ({ id: objIndex * 100 + actionIndex, name }))
+                                        )
+                                    }}
+                                    updateItemName={handleSubMandalartItemNameChange}
+                                    updateItemStatus={handleSubMandalartItemStatusChange}
+                                    loadingSubjectAI={loadingSubMandalartAI}
+                                    loadingObjectiveAI={null}
+                                    autoFit={false}
+                                    showZoomControls={false}
+                                />
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={handleGenerateSubMandalartWithAI}
+                                        disabled={loadingSubMandalartAI}
+                                    >
+                                        {loadingSubMandalartAI ? <CircularProgress size={20} /> : 'AI 제안 다시 받기'}
+                                    </Button>
+                                </Box>
+                            </Box>
+                        )}
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    {subMandalartStep === 0 ? (
+                        <>
+                            <Button onClick={() => setOpenSubMandalartDialog(false)}>
+                                취소
+                            </Button>
+                            <Button 
+                                variant="contained"
+                                onClick={handleSubMandalartGoToNextStep}
+                                disabled={loadingSubMandalartAI || !subMandalartData?.mandalartName || !subMandalartData?.subject}
+                            >
+                                {loadingSubMandalartAI ? <CircularProgress size={20} /> : '초안 만들기'}
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button onClick={() => setSubMandalartStep(0)}>
+                                이전
+                            </Button>
+                            <Button onClick={() => setOpenSubMandalartDialog(false)} disabled={loadingSubMandalartSave}>
+                                취소
+                            </Button>
+                            <Button 
+                                onClick={handleSaveSubMandalart} 
+                                variant="contained" 
+                                disabled={loadingSubMandalartSave || !subMandalartData?.mandalartName || !subMandalartData?.subject}
+                            >
+                                {loadingSubMandalartSave ? <CircularProgress size={20} /> : '생성하기'}
+                            </Button>
+                        </>
+                    )}
                 </DialogActions>
             </Dialog>
         </Paper>
