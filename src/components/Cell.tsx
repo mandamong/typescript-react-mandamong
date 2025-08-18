@@ -2,6 +2,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { Box, CircularProgress, IconButton, Paper, TextField, Tooltip, Typography, } from '@mui/material';
+import { lighten, useTheme } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react';
 import type { ColorPalette } from './types';
 
@@ -36,10 +37,10 @@ const Cell: React.FC<CellProps> = ({
                                        objectiveIndex,
                                        readOnly = false
                                    }) => {
+    const theme = useTheme();
     const canChangeStatus = type === 'action' && !readOnly;
 
     const [isEditing, setIsEditing] = useState(false);
-    const [localLoading, setLocalLoading] = useState(false);
     const [currentName, setCurrentName] = useState(name);
 
 
@@ -58,9 +59,7 @@ const Cell: React.FC<CellProps> = ({
 
 
     const handleUpdateStatus = async () => {
-        setLocalLoading(true);
         await updateItemStatus(id, type);
-        setLocalLoading(false);
     };
 
     const isDone = status === 'DONE';
@@ -81,25 +80,47 @@ const Cell: React.FC<CellProps> = ({
     };
 
     if (isMainSubject) {
-        cellStyle.backgroundColor = 'primary.main';
-        cellStyle.color = 'primary.contrastText';
-        cellStyle.boxShadow = '0 6px 16px rgba(0,0,0,0.18)';
+        cellStyle.backgroundColor = theme.palette.primary.main;
+        cellStyle.color = theme.palette.primary.contrastText;
+        cellStyle.boxShadow = theme.palette.mode === 'dark'
+            ? '0 6px 18px rgba(0,0,0,0.55)'
+            : '0 6px 16px rgba(0,0,0,0.18)';
     } else if (isCenter && palette) {
-        // Theme-aware styling to emphasize objectives
-        cellStyle.backgroundColor = 'var(--field-bg)';
-        cellStyle.color = 'var(--text-primary)';
+        cellStyle.backgroundColor = theme.palette.background.paper;
+        cellStyle.color = theme.palette.text.primary;
         cellStyle.border = '2px solid';
         cellStyle.borderColor = palette.main;
-        cellStyle.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+        cellStyle.boxShadow = theme.palette.mode === 'dark'
+            ? '0 2px 10px rgba(0,0,0,0.5)'
+            : '0 2px 8px rgba(0,0,0,0.08)';
     } else {
-        cellStyle.backgroundColor = 'background.paper';
+        cellStyle.backgroundColor = theme.palette.background.paper;
         cellStyle.border = '1px solid';
-        cellStyle.borderColor = palette ? palette.main : 'divider';
+        cellStyle.borderColor = palette ? palette.main : theme.palette.divider;
     }
 
     if (isDone) {
-        cellStyle.backgroundColor = 'action.disabledBackground';
-        cellStyle.color = 'text.disabled';
+        const base = palette?.main || theme.palette.primary.main;
+        if (isMainSubject) {
+            cellStyle.backgroundColor = theme.palette.primary.main;
+            cellStyle.color = theme.palette.primary.contrastText;
+        } else if (isCenter) {
+            cellStyle.backgroundColor = theme.palette.mode === 'dark'
+                ? theme.palette.background.default
+                : lighten(base, 0.6);
+            cellStyle.borderColor = base;
+        } else {
+            cellStyle.backgroundColor = theme.palette.mode === 'dark'
+                ? theme.palette.background.default
+                : lighten(base, 0.75);
+            cellStyle.borderColor = base;
+        }
+        if (!isMainSubject) {
+            cellStyle.color = theme.palette.text.secondary;
+        }
+        cellStyle.filter = isMainSubject
+            ? 'brightness(0.97) saturate(0.92)'
+            : 'brightness(0.94) saturate(0.88)';
     }
 
     const showAILoading = (
@@ -108,7 +129,7 @@ const Cell: React.FC<CellProps> = ({
         (type === 'action' && loadingObjectiveAI === objectiveIndex)
     );
 
-    let isLoading = localLoading || showAILoading;
+    let isLoading = showAILoading;
 
     
     if (type === 'subject' && loadingSubjectAI) {
