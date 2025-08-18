@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 // 간단한 데모 데이터 (정적)
 const demoData: MandalartGridData = {
-  mandalart: { id: 0, name: '데모 만다르트' },
-  subject: { id: 1, name: '올해 목표' },
+  mandalart: { id: 0, name: '예시 만다르트 이름' },
+  subject: { id: 1, name: '예시 만다르트 주제 (올해 목표)' },
   objectives: [
     { id: 2, name: '건강 관리' },
     { id: 3, name: '커리어 성장' },
@@ -56,13 +56,10 @@ const IntroPage: React.FC = () => {
       <Stack spacing={8}>
         <Box textAlign="center">
           <Typography variant="h2" sx={{ fontWeight: 800, mb: 2, fontSize: { xs: 'clamp(2rem,6vw,2.75rem)', md: '3.25rem' } }}>
-            만다르트로 목표를 구체화하고 목표에 가까워지세요
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
-            중앙에 핵심 주제(Subject), 사방에 4개의 목표(Objective), 각 목표를 이루기 위한 5개의 행동(Action)
+            목표를 구체화하고, 성취하세요.
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            5 * 5 = 25칸 구조로 핵심 주제 이루기 위한 구체적인 행동을 만들어 줍니다.
+            핵심 주제를 이루기 위해 수행해야 하는 구체적인 행동들을 제안해줍니다.
           </Typography>
           <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
             <Button variant="contained" size="large" onClick={() => navigate('/signup')}>지금 시작하기</Button>
@@ -81,12 +78,12 @@ const IntroPage: React.FC = () => {
         </Paper>
 
         <Paper variant="outlined" sx={{ p: { xs: 2, md: 4 }, borderRadius: 4 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>작동 방식</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>실행 순서</Typography>
           <Stack spacing={1}>
-            <Typography variant="body2">1. Subject: 중앙에 핵심 주제 1개</Typography>
-            <Typography variant="body2">2. Objectives: 중앙을 둘러싼 4개 목표</Typography>
-            <Typography variant="body2">3. Actions: 각 목표를 이루기 위한 5개 행동</Typography>
-            <Typography variant="body2">4. 진행: 실행(Action) 칸을 완료 표시(DONE)하며 목표에 가까워지기</Typography>
+            <Typography variant="body2">1. 새 만다라트를 만들고 이루고 싶은 목표를 입력하세요.</Typography>
+            <Typography variant="body2">2. 초안 만들기 버튼을 눌러 AI 의 제안을 확인하세요.</Typography>
+            <Typography variant="body2">3. AI 의 제안을 바탕으로 자유롭게 수정하여 나만의 만다르트 표를 완성하세요.</Typography>
+            <Typography variant="body2">4. 완료한 행동을 하나씩 체크하며 목표 달성의 즐거움을 느껴보세요.</Typography>
           </Stack>
         </Paper>
       </Stack>
