@@ -14,8 +14,8 @@ class UserService {
     await axiosInstance.patch('/user/password', { updated: password });
   }
 
-  async resetPassword(): Promise<{ updated: string }> {
-    const { data } = await axiosInstance.patch<{ payload: { updated: string } }>('/user/password/initialize');
+  async resetPassword(email: string): Promise<{ updated: string }> {
+    const { data } = await axiosInstance.patch<{ payload: { updated: string } }>('/user/password/initialize', { email });
     return data.payload;
   }
 }

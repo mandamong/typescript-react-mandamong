@@ -77,7 +77,7 @@ const PasswordRecoveryPage: React.FC = () => {
     setLoadingReset(true);
     try {
       // NOTE: 현재 백엔드 endpoint는 인증 필요할 수 있음. 비로그인용 별도 API가 필요할 수 있음.
-      const { updated } = await userService.resetPassword();
+  const { updated } = await userService.resetPassword(email);
       setTempPassword(updated);
       setOpenDialog(true);
       showSnackbar('임시 비밀번호가 생성되었습니다.', 'success');
