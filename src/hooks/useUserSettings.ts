@@ -17,14 +17,12 @@ export const useUserSettings = () => {
     const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
     const [isPasswordVerified, setIsPasswordVerified] = useState(false);
     const [passwordError, setPasswordError] = useState('');
-    const [tempPassword, setTempPassword] = useState('');
-    const [openTempPasswordDialog, setOpenTempPasswordDialog] = useState(false);
 
     const [loadingNickname, setLoadingNickname] = useState(false);
     const [loadingNicknameCheck, setLoadingNicknameCheck] = useState(false);
     const [loadingPasswordVerify, setLoadingPasswordVerify] = useState(false);
     const [loadingPasswordUpdate, setLoadingPasswordUpdate] = useState(false);
-    const [loadingPasswordReset, setLoadingPasswordReset] = useState(false);
+    // Removed temp password reset from settings (moved to public flow)
     const [loadingDeleteAccount, setLoadingDeleteAccount] = useState(false);
 
     const setNickname = (newNickname: string) => {
@@ -112,24 +110,7 @@ export const useUserSettings = () => {
         }
     };
 
-    const handleResetPassword = async () => {
-        setLoadingPasswordReset(true);
-        try {
-            const { updated } = await userService.resetPassword();
-            setTempPassword(updated);
-            setOpenTempPasswordDialog(true);
-            showSnackbar('임시 비밀번호가 생성되었습니다.', 'success');
-    } catch (_error) {
-            showSnackbar('임시 비밀번호 생성에 실패했습니다.', 'error');
-        } finally {
-            setLoadingPasswordReset(false);
-        }
-    };
-
-    const handleCloseTempPasswordDialog = () => {
-        setOpenTempPasswordDialog(false);
-        setTempPassword('');
-    };
+    // handleResetPassword removed
 
     const handleDeleteAccount = async () => {
         setLoadingDeleteAccount(true);
@@ -161,16 +142,11 @@ export const useUserSettings = () => {
         loadingNicknameCheck,
         loadingPasswordVerify,
         loadingPasswordUpdate,
-        loadingPasswordReset,
         loadingDeleteAccount,
         handleUpdateNickname,
         handleCheckNickname,
         handleVerifyPassword,
         handleUpdatePassword,
-        handleResetPassword,
         handleDeleteAccount,
-        tempPassword,
-        openTempPasswordDialog,
-        handleCloseTempPasswordDialog,
     };
 };

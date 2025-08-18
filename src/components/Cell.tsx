@@ -18,6 +18,7 @@ interface CellProps {
     loadingSubjectAI?: boolean;
     loadingObjectiveAI?: number | null;
     objectiveIndex?: number;
+    readOnly?: boolean;
 }
 
 const Cell: React.FC<CellProps> = ({
@@ -32,9 +33,10 @@ const Cell: React.FC<CellProps> = ({
                                        isMainSubject = false,
                                        loadingSubjectAI = false,
                                        loadingObjectiveAI = null,
-                                       objectiveIndex
+                                       objectiveIndex,
+                                       readOnly = false
                                    }) => {
-    const canChangeStatus = type === 'action';
+    const canChangeStatus = type === 'action' && !readOnly;
 
     const [isEditing, setIsEditing] = useState(false);
     const [localLoading, setLocalLoading] = useState(false);
@@ -166,7 +168,7 @@ const Cell: React.FC<CellProps> = ({
                     {name}
                 </Typography>
             )}
-            {!(loadingSubjectAI || loadingObjectiveAI !== null) && !isEditing && (
+            {!(loadingSubjectAI || loadingObjectiveAI !== null) && !isEditing && !readOnly && (
                 <Box
                     className="cell-actions"
                     sx={{

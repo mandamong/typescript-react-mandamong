@@ -73,11 +73,14 @@ const LoginPage: React.FC = () => {
                             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 1.5 }} disabled={loading}>
                                 {loading ? <CircularProgress size={24} /> : '로그인'}
                             </Button>
-                            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <Stack direction="row" justifyContent="space-between" sx={{ mt: 1 }}>
                                 <Link component={RouterLink} to="/signup" variant="body2" color="primary">
-                                    아직 계정이 없으신가요? 회원가입
+                                    회원가입
                                 </Link>
-                            </Box>
+                                <Link component={RouterLink} to="/password-recovery" variant="body2" color="primary">
+                                    비밀번호 찾기
+                                </Link>
+                            </Stack>
                         </Box>
                     </Paper>
                 </Box>

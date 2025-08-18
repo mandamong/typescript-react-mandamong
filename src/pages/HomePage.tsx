@@ -1,20 +1,14 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import IntroPage from './IntroPage';
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/mandalart');
-    } else {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate]);
-
-  return null;
+  if (isAuthenticated) {
+    return <Navigate to="/mandalart" replace />;
+  }
+  return <IntroPage />;
 };
 
 export default HomePage;

@@ -24,62 +24,68 @@ const SettingsPage: React.FC = () => {
                 <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 'bold' }}>
                     설정
                 </Typography>
-                <Paper variant="outlined" sx={{ borderRadius: 4 }}>
-                    <Stack divider={<Divider />}>
-                        <SettingsListItem 
-                            title="닉네임 변경" 
-                            icon={<EditIcon />} 
-                            onClick={handleToggle('nickname')} 
-                            open={open === 'nickname'} 
+                <Paper variant="outlined" sx={{ borderRadius: 4, overflow: 'hidden' }}>
+                    <Stack>
+                        {/* 닉네임 변경 섹션 */}
+                        <SettingsListItem
+                            title="닉네임 변경"
+                            icon={<EditIcon />}
+                            onClick={handleToggle('nickname')}
+                            open={open === 'nickname'}
                         />
-                                                <Collapse in={open === 'nickname'} timeout="auto" unmountOnExit>
-                                                        <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
-                                                                <NicknameChange
-                                                                    nickname={userSettings.nickname}
-                                                                    setNickname={userSettings.setNickname}
-                                                                    handleUpdateNickname={userSettings.handleUpdateNickname}
-                                                                    handleCheckNickname={userSettings.handleCheckNickname}
-                                                                    loading={userSettings.loadingNickname}
-                                                                    loadingCheck={userSettings.loadingNicknameCheck}
-                                                                    nicknameChecked={userSettings.nicknameChecked}
-                                                                />
+                        <Collapse in={open === 'nickname'} timeout="auto" unmountOnExit>
+                            <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
+                                <NicknameChange
+                                    nickname={userSettings.nickname}
+                                    setNickname={userSettings.setNickname}
+                                    handleUpdateNickname={userSettings.handleUpdateNickname}
+                                    handleCheckNickname={userSettings.handleCheckNickname}
+                                    loading={userSettings.loadingNickname}
+                                    loadingCheck={userSettings.loadingNicknameCheck}
+                                    nicknameChecked={userSettings.nicknameChecked}
+                                />
                             </Box>
                         </Collapse>
-
-                        <SettingsListItem 
-                            title="비밀번호 변경" 
-                            icon={<LockResetIcon />} 
+                        <Divider />
+                        {/* 비밀번호 변경 섹션 */}
+                        <SettingsListItem
+                            title="비밀번호 변경"
+                            icon={<LockResetIcon />}
                             onClick={handleToggle('password')}
                             open={open === 'password'}
                         />
-                                                <Collapse in={open === 'password'} timeout="auto" unmountOnExit>
-                                                        <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
-                                                                <PasswordChange
-                                                                    currentPassword={userSettings.currentPassword}
-                                                                    setCurrentPassword={userSettings.setCurrentPassword}
-                                                                    newPassword={userSettings.newPassword}
-                                                                    setNewPassword={userSettings.setNewPassword}
-                                                                    newPasswordConfirm={userSettings.newPasswordConfirm}
-                                                                    setNewPasswordConfirm={userSettings.setNewPasswordConfirm}
-                                                                    isPasswordVerified={userSettings.isPasswordVerified}
-                                                                    passwordError={userSettings.passwordError}
-                                                                    loadingPasswordVerify={userSettings.loadingPasswordVerify}
-                                                                    loadingPasswordUpdate={userSettings.loadingPasswordUpdate}
-                                                                    handleVerifyPassword={userSettings.handleVerifyPassword}
-                                                                    handleUpdatePassword={userSettings.handleUpdatePassword}
-                                                                />
+                        <Collapse in={open === 'password'} timeout="auto" unmountOnExit>
+                            <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
+                                <PasswordChange
+                                    currentPassword={userSettings.currentPassword}
+                                    setCurrentPassword={userSettings.setCurrentPassword}
+                                    newPassword={userSettings.newPassword}
+                                    setNewPassword={userSettings.setNewPassword}
+                                    newPasswordConfirm={userSettings.newPasswordConfirm}
+                                    setNewPasswordConfirm={userSettings.setNewPasswordConfirm}
+                                    isPasswordVerified={userSettings.isPasswordVerified}
+                                    passwordError={userSettings.passwordError}
+                                    loadingPasswordVerify={userSettings.loadingPasswordVerify}
+                                    loadingPasswordUpdate={userSettings.loadingPasswordUpdate}
+                                    handleVerifyPassword={userSettings.handleVerifyPassword}
+                                    handleUpdatePassword={userSettings.handleUpdatePassword}
+                                />
                             </Box>
                         </Collapse>
-
-                        <SettingsListItem 
-                            title="계정 관리" 
-                            icon={<ManageAccountsIcon />} 
+                        <Divider />
+                        {/* 계정 관리 섹션 */}
+                        <SettingsListItem
+                            title="계정 관리"
+                            icon={<ManageAccountsIcon />}
                             onClick={handleToggle('account')}
                             open={open === 'account'}
                         />
                         <Collapse in={open === 'account'} timeout="auto" unmountOnExit>
                             <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
-                                <AccountManagement {...userSettings} />
+                                <AccountManagement
+                                    loadingDeleteAccount={userSettings.loadingDeleteAccount}
+                                    handleDeleteAccount={userSettings.handleDeleteAccount}
+                                />
                             </Box>
                         </Collapse>
                     </Stack>

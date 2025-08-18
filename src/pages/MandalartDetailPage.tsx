@@ -406,7 +406,7 @@ const MandalartDetailPage: React.FC = () => {
                             disableUnderline: true,
                             sx: {
                                 typography: 'h4',
-                                padding: 0, // Adjust padding to match Typography
+                                padding: 0,
                             }
                         }}
                     />
