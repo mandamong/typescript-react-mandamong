@@ -38,7 +38,7 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
                     setPasswordError(false);
                 }}
                 error={passwordError}
-                helperText={passwordError ? '비밀번호는 8자 이상이며, 대문자/소문자/숫자/특수문자를 포함해야 합니다.' : ''}
+                helperText={passwordError ? '비밀번호는 8자 이상이며, 소문자/숫자/특수문자를 포함해야 합니다.' : ''}
             />
             <TextField
                 required

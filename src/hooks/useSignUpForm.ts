@@ -66,7 +66,7 @@ export const useSignUpForm = () => {
     };
 
     const validateImage = useCallback((image: File | null) => {
-        if (!image) return false;
+        if (!image) return true; // 선택 안해도 통과
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
         const maxSize = 2 * 1024 * 1024; // 2MB
         if (!allowedTypes.includes(image.type)) {
@@ -180,7 +180,7 @@ export const useSignUpForm = () => {
         }
         if (!validatePassword(password)) {
             setPasswordError(true);
-            showSnackbar('비밀번호는 8자 이상이며, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.', 'warning');
+            showSnackbar('비밀번호는 8자 이상이며, 소문자, 숫자, 특수문자를 포함해야 합니다.', 'warning');
             valid = false;
         }
         if (password !== passwordConfirm) {
@@ -191,6 +191,8 @@ export const useSignUpForm = () => {
         if (!validateImage(image)) {
             setImageError(true);
             valid = false;
+        } else {
+            setImageError(false);
         }
 
         if (!valid) {
@@ -203,7 +205,7 @@ export const useSignUpForm = () => {
                 email,
                 password,
                 nickname,
-                image: image as File,
+                image: image ?? undefined,
                 language,
             });
             if (payload) {

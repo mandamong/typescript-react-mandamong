@@ -1,6 +1,15 @@
-import axios from 'axios';
 import axiosInstance from '@/api/client/axios';
-import type { LoginResponse, SignUpRequest, RefreshTokenResponse, SignUpResponse } from '@/types/auth';
+import type { LoginResponse, RefreshTokenResponse, SignUpResponse } from '@/types/auth';
+import axios from 'axios';
+
+// Sign up payload (frontend form) allowing optional image
+interface SignUpPayload {
+  email: string;
+  password: string;
+  nickname: string;
+  language: string;
+  image?: File | null;
+}
 
 class AuthService {
   async login(email: string, password: string): Promise<LoginResponse | undefined> {
@@ -8,14 +17,15 @@ class AuthService {
     return data.payload;
   }
 
-  async signup(payload: SignUpRequest): Promise<SignUpResponse | undefined> {
+  async signup(payload: SignUpPayload): Promise<SignUpResponse | undefined> {
     const formData = new FormData();
-    if (payload) {
-      formData.append('email', payload.email);
-      formData.append('password', payload.password);
-      formData.append('nickname', payload.nickname);
+    formData.append('email', payload.email);
+    formData.append('password', payload.password);
+    formData.append('nickname', payload.nickname);
+    formData.append('language', payload.language);
+    // 이미지가 선택된 경우에만 전송 (선택 사항)
+    if (payload.image) {
       formData.append('image', payload.image);
-      formData.append('language', payload.language);
     }
 
     const { data } = await axiosInstance.post<{ payload: SignUpResponse }>('/auth/basic', formData, {
