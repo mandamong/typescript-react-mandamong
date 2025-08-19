@@ -582,6 +582,7 @@ const MandalartDetailPage: React.FC = () => {
                 loadingSubjectAI={loadingSubjectAI}
                 loadingObjectiveAI={loadingObjectiveAI}
                 loadingSubMandalartAI={loadingSubMandalartAI}
+                autoFit={false}
             />
 
             <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>

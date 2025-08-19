@@ -1,10 +1,24 @@
+import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import EditIcon from '@mui/icons-material/Edit';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import AddIcon from '@mui/icons-material/Add';
-import { Box, CircularProgress, IconButton, Paper, TextField, Tooltip, Typography, } from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    Drawer,
+    IconButton,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Paper,
+    TextField,
+    Tooltip,
+    Typography,
+    useMediaQuery
+} from '@mui/material';
 import { lighten, useTheme } from '@mui/material/styles';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { ColorPalette } from './types';
 
 interface CellProps {
@@ -43,11 +57,12 @@ const Cell: React.FC<CellProps> = ({
                                        readOnly = false
                                    }) => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const canChangeStatus = type === 'action' && !readOnly;
 
     const [isEditing, setIsEditing] = useState(false);
     const [currentName, setCurrentName] = useState(name);
-
+    const [showMobileActions, setShowMobileActions] = useState(false);
 
     useEffect(() => {
         setCurrentName(name);
@@ -65,6 +80,29 @@ const Cell: React.FC<CellProps> = ({
 
     const handleUpdateStatus = async () => {
         await updateItemStatus(id, type);
+    };
+
+    // 모바일 터치 핸들러 (즉시 액션 메뉴 표시)
+    const handleMobileTouch = useCallback(() => {
+        if (!isMobile || isEditing || readOnly) return;
+        setShowMobileActions(true);
+    }, [isMobile, isEditing, readOnly]);
+
+    const handleMobileEdit = () => {
+        setShowMobileActions(false);
+        setIsEditing(true);
+    };
+
+    const handleMobileStatusChange = () => {
+        setShowMobileActions(false);
+        handleUpdateStatus();
+    };
+
+    const handleMobileSubMandalart = () => {
+        setShowMobileActions(false);
+        if (onCreateSubMandalart) {
+            onCreateSubMandalart(id, type as 'objective' | 'action', name);
+        }
     };
 
     const isDone = status === 'DONE';
@@ -145,17 +183,27 @@ const Cell: React.FC<CellProps> = ({
     }
 
     return (
-        <Paper elevation={0} sx={{
-            ...cellStyle,
-            padding: {xs: 0.5, sm: 1},
-            '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
-            },
-            '&:hover .cell-actions': {
-                opacity: 1,
-            },
-        }}>
+        <>
+            <Paper 
+                elevation={0} 
+                onClick={handleMobileTouch} // 모바일에서 터치(클릭) 시 액션 메뉴 표시
+                sx={{
+                    ...cellStyle,
+                    padding: {xs: 0.5, sm: 1},
+                    // 데스크톱에서만 호버 효과 적용
+                    '@media (hover: hover)': {
+                        '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                        },
+                        '&:hover .cell-actions': {
+                            opacity: 1,
+                        },
+                    },
+                    // 모바일에서 터치 가능함을 나타내는 커서
+                    cursor: isMobile && !isEditing && !readOnly ? 'pointer' : 'default',
+                }}
+            >
             {isLoading ? (
                 <CircularProgress size={24} color="inherit"/>
             ) : isEditing ? (
@@ -203,7 +251,7 @@ const Cell: React.FC<CellProps> = ({
                         right: 2,
                         opacity: 0,
                         transition: 'opacity 0.2s',
-                        display: 'flex',
+                        display: { xs: 'none', md: 'flex' }, // 모바일에서는 아예 숨김, 데스크톱에서만 표시
                         gap: 0.5,
                         backgroundColor: 'action.hover',
                         borderRadius: '12px',
@@ -247,7 +295,88 @@ const Cell: React.FC<CellProps> = ({
                     )}
                 </Box>
             )}
-        </Paper>
+            </Paper>
+
+            {/* 모바일 액션 드로어 */}
+            <Drawer
+                anchor="bottom"
+                open={showMobileActions}
+                onClose={() => setShowMobileActions(false)}
+                sx={{
+                    '& .MuiDrawer-paper': {
+                        borderTopLeftRadius: 16,
+                        borderTopRightRadius: 16,
+                        paddingBottom: 2,
+                    },
+                }}
+            >
+                <Box sx={{ width: '100%', padding: 2 }}>
+                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', fontWeight: 600 }}>
+                        {name}
+                    </Typography>
+                    <List>
+                        <ListItemButton 
+                            onClick={handleMobileEdit}
+                            sx={{ 
+                                borderRadius: 2, 
+                                mb: 1,
+                                backgroundColor: 'action.hover',
+                                '&:hover': { backgroundColor: 'action.selected' }
+                            }}
+                        >
+                            <ListItemIcon sx={{ minWidth: 40 }}>
+                                <EditIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="내용 수정" />
+                        </ListItemButton>
+                        
+                        {(type === 'objective' || type === 'action') && onCreateSubMandalart && (
+                            <ListItemButton 
+                                onClick={handleMobileSubMandalart}
+                                disabled={loadingSubMandalartAI}
+                                sx={{ 
+                                    borderRadius: 2, 
+                                    mb: 1,
+                                    backgroundColor: 'action.hover',
+                                    '&:hover': { backgroundColor: 'action.selected' }
+                                }}
+                            >
+                                <ListItemIcon sx={{ minWidth: 40 }}>
+                                    {loadingSubMandalartAI ? (
+                                        <CircularProgress size={24} />
+                                    ) : (
+                                        <AddIcon />
+                                    )}
+                                </ListItemIcon>
+                                <ListItemText primary="서브 만다르트 생성" />
+                            </ListItemButton>
+                        )}
+                        
+                        {canChangeStatus && (
+                            <ListItemButton 
+                                onClick={handleMobileStatusChange}
+                                sx={{ 
+                                    borderRadius: 2,
+                                    backgroundColor: 'action.hover',
+                                    '&:hover': { backgroundColor: 'action.selected' }
+                                }}
+                            >
+                                <ListItemIcon sx={{ minWidth: 40 }}>
+                                    {isDone ? (
+                                        <CheckCircleIcon sx={{ color: 'success.main' }} />
+                                    ) : (
+                                        <RadioButtonUncheckedIcon />
+                                    )}
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary={isDone ? '진행중으로 변경' : '완료로 변경'} 
+                                />
+                            </ListItemButton>
+                        )}
+                    </List>
+                </Box>
+            </Drawer>
+        </>
     );
 };
 
