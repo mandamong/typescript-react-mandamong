@@ -186,7 +186,7 @@ const Cell: React.FC<CellProps> = ({
         <>
             <Paper 
                 elevation={0} 
-                onClick={handleMobileTouch} // 모바일에서 터치(클릭) 시 액션 메뉴 표시
+                onClick={!isEditing ? handleMobileTouch : undefined} // 편집 중이 아닐 때만 터치 이벤트 활성화
                 sx={{
                     ...cellStyle,
                     padding: {xs: 0.5, sm: 1},
@@ -211,6 +211,7 @@ const Cell: React.FC<CellProps> = ({
                     value={currentName}
                     onChange={(e) => setCurrentName(e.target.value)}
                     onBlur={handleUpdateName}
+                    onClick={(e) => e.stopPropagation()} // 클릭 이벤트 전파 방지
                     onKeyPress={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -302,6 +303,9 @@ const Cell: React.FC<CellProps> = ({
                 anchor="bottom"
                 open={showMobileActions}
                 onClose={() => setShowMobileActions(false)}
+                disableRestoreFocus // 포커스 복원 방지
+                disableEnforceFocus // 포커스 강제 유지 방지
+                keepMounted={false} // 닫힐 때 DOM에서 완전히 제거
                 sx={{
                     '& .MuiDrawer-paper': {
                         borderTopLeftRadius: 16,
