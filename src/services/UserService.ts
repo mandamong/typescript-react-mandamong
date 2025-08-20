@@ -18,6 +18,19 @@ class UserService {
     const { data } = await axiosInstance.patch<{ payload: { updated: string } }>('/user/password/initialize', { email });
     return data.payload;
   }
+
+  async updateProfileImage(image: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('image', image);
+    
+    const response = await axiosInstance.patch('/user', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    
+    return response.data.payload;
+  }
 }
 
 export const userService = new UserService();

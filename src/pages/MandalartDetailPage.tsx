@@ -25,7 +25,6 @@ import {
     Typography,
 } from '@mui/material';
 
-// The detail API response doesn't include status, so we make it optional here.
 type MandalartItem = { id: number; name: string; status?: string };
 
 const MandalartDetailPage: React.FC = () => {
@@ -44,7 +43,7 @@ const MandalartDetailPage: React.FC = () => {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [loadingSubjectAI, setLoadingSubjectAI] = useState(false);
     const [loadingObjectiveAI, setLoadingObjectiveAI] = useState<number | null>(null);
-    const [loadingDelete, setLoadingDelete] = useState(false); // New loading state for delete
+    const [loadingDelete, setLoadingDelete] = useState(false);
 
     // 서브 만다르트 생성 관련 상태
     const [openSubMandalartDialog, setOpenSubMandalartDialog] = useState(false);
@@ -59,39 +58,31 @@ const MandalartDetailPage: React.FC = () => {
     const [loadingSubMandalartAI, setLoadingSubMandalartAI] = useState(false);
     const [loadingSubMandalartSave, setLoadingSubMandalartSave] = useState(false);
 
-    // Extracted AI update and save functions
     const handleSubjectAIUpdateAndSave = useCallback(async (subjectId: string, newSubjectName: string, currentMandalart: MandalartData) => {
         setLoadingSubjectAI(true);
         try {
-            // Update subject name and status via API
             await mandalartService.updateSubject(subjectId, newSubjectName, 'IN_PROGRESS');
 
-            // Generate AI content
             const aiResult = await mandalartService.generateGeminiSubject(newSubjectName);
-            console.log('AI Result for subject:', aiResult);
 
             if (!aiResult || !aiResult.objectives || aiResult.objectives.length === 0 || !aiResult.actions || aiResult.actions.length === 0) {
                 showSnackbar('AI 제안을 생성하지 못했습니다. AI 응답이 비어있거나 유효하지 않습니다.', 'warning');
                 throw new Error('AI generation failed or data is missing');
             }
 
-            // Optimistically update local state with AI results and reset statuses
             setMandalart((prev: MandalartData | null) => {
                 if (!prev) return null;
                 const newMandalart: MandalartData = JSON.parse(JSON.stringify(prev));
 
-                // Update subject name and status
                 newMandalart.subject.name = newSubjectName;
                 newMandalart.subject.status = 'IN_PROGRESS';
 
-                // Update objective names and reset statuses
                 newMandalart.objectives = newMandalart.objectives.map((objective: MandalartItem, index: number) => ({
                     ...objective,
                     name: aiResult.objectives[index] || objective.name,
                     status: 'IN_PROGRESS',
                 }));
 
-                // Update action names and reset statuses
                 newMandalart.actions = newMandalart.actions.map((actionList: MandalartItem[]) =>
                     actionList.map((action: MandalartItem) => ({
                         ...action,
@@ -109,7 +100,6 @@ const MandalartDetailPage: React.FC = () => {
 
             showSnackbar('주제와 연결된 모든 항목이 새로 제안되었습니다.', 'success');
 
-            // Update objectives and actions via API
             const updatePromises: Promise<void>[] = [];
             currentMandalart.objectives.forEach((objective: MandalartItem, index: number) => {
                 const newObjectiveName = aiResult.objectives[index];
@@ -138,29 +128,24 @@ const MandalartDetailPage: React.FC = () => {
     const handleObjectiveAIUpdateAndSave = useCallback(async (objectiveId: string, newObjectiveName: string, objectiveIndex: number, currentMandalart: MandalartData) => {
         setLoadingObjectiveAI(objectiveIndex);
         try {
-            // Update objective name and status via API
             await mandalartService.updateObjective(objectiveId, newObjectiveName, 'IN_PROGRESS');
 
-            // Generate AI actions
             const aiResult = await mandalartService.generateGeminiObjective(newObjectiveName);
             if (!aiResult || !aiResult.actions || aiResult.actions.length === 0) {
                 showSnackbar('AI 제안을 생성하지 못했습니다. AI 응답이 비어있거나 유효하지 않습니다.', 'warning');
                 throw new Error('AI generation failed or data is missing');
             }
 
-            // Optimistically update local state with AI results and reset statuses
             setMandalart((prev: MandalartData | null) => {
                 if (!prev) return null;
                 const newMandalart: MandalartData = JSON.parse(JSON.stringify(prev));
 
-                // Update objective name and status
                 const targetObjective = newMandalart.objectives[objectiveIndex];
                 if (targetObjective) {
                     targetObjective.name = newObjectiveName;
                     targetObjective.status = 'IN_PROGRESS';
                 }
 
-                // Update action names and reset statuses for the specific objective
                 newMandalart.actions[objectiveIndex] = newMandalart.actions[objectiveIndex].map((action: MandalartItem, index: number) => ({
                     ...action,
                     name: aiResult.actions[index] || action.name,
@@ -172,7 +157,6 @@ const MandalartDetailPage: React.FC = () => {
 
             showSnackbar('목표와 연결된 행동들이 새로 제안되었습니다.', 'success');
 
-            // Update actions via API
             const updatePromises: Promise<void>[] = [];
             const targetActions = currentMandalart.actions[objectiveIndex];
             targetActions.forEach((action: MandalartItem, index: number) => {
@@ -200,7 +184,7 @@ const MandalartDetailPage: React.FC = () => {
 
                 originalMandalartState = JSON.parse(JSON.stringify(prevMandalart));
 
-                const newMandalart: MandalartData = JSON.parse(JSON.stringify(prevMandalart)); // Deep copy for safe mutation
+                const newMandalart: MandalartData = JSON.parse(JSON.stringify(prevMandalart));
 
                 let toggledActionObjectiveIndex: number | null = null;
 
@@ -235,14 +219,11 @@ const MandalartDetailPage: React.FC = () => {
                         if (allActionsDone) {
                             newMandalart.objectives[toggledActionObjectiveIndex].status = 'DONE';
                         } else {
-                            // If not all actions are done, ensure the parent objective is not DONE
-                            // This handles the case where a user un-does an action
                             newMandalart.objectives[toggledActionObjectiveIndex].status = 'IN_PROGRESS';
                         }
                     }
                 }
 
-                // After all updates, check if the subject should be marked as done
                 const allObjectivesDone = newMandalart.objectives.every((o: MandalartItem) => o.status === 'DONE');
                 if (allObjectivesDone) {
                     newMandalart.subject.status = 'DONE';
@@ -254,7 +235,6 @@ const MandalartDetailPage: React.FC = () => {
             });
 
             try {
-                // Determine original status using the last committed state
                 const before = mandalartRef.current as MandalartData | null;
                 let originalStatus: string | undefined;
                 if (before) {
@@ -426,9 +406,8 @@ const MandalartDetailPage: React.FC = () => {
                 clearTimeout(aiGenerationTimeoutRef.current);
             }
 
-            const originalMandalart = mandalart; // Capture current mandalart for potential rollback
+            const originalMandalart = mandalart;
 
-            // Update local state with new name (immutable update)
             setMandalart((prev: MandalartData | null) => {
                 if (!prev) return null;
                 const newMandalart = {...prev};
@@ -472,17 +451,16 @@ const MandalartDetailPage: React.FC = () => {
         setOpenDeleteDialog(false);
         if (!id) return;
 
-        setLoadingDelete(true); // Set loading to true
+        setLoadingDelete(true);
 
         try {
             await mandalartService.deleteMandalart(id);
             showSnackbar('만다라트가 삭제되었습니다.', 'success');
-            navigate('/mandalart'); // Navigate after successful deletion
+            navigate('/mandalart');
         } catch (_error) {
             showSnackbar('만다라트 삭제에 실패했습니다.', 'error');
-            // No navigation rollback needed here, as it's a delete operation
         } finally {
-            setLoadingDelete(false); // Set loading to false
+            setLoadingDelete(false);
         }
     };
 

@@ -1,5 +1,5 @@
-import { useMandalartList } from '@/hooks/useMandalartList'; // Import the custom hook
-import AddIcon from '@mui/icons-material/Add'; // Corrected import
+import { useMandalartList } from '@/hooks/useMandalartList';
+import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Card, CardActionArea, CardContent, Chip, CircularProgress, Fab, Typography } from '@mui/material';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';

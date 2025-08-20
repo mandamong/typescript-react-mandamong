@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const useUserSettings = () => {
     const navigate = useNavigate();
-    const { user, logout, setNickname: setStoreNickname } = useAuthStore();
+    const { user, logout, setNickname: setStoreNickname, setProfileImage: setStoreProfileImage } = useAuthStore();
     const { showSnackbar } = useSnackbar();
 
     const [nickname, setNicknameValue] = useState(user?.nickname || '');
@@ -22,8 +22,8 @@ export const useUserSettings = () => {
     const [loadingNicknameCheck, setLoadingNicknameCheck] = useState(false);
     const [loadingPasswordVerify, setLoadingPasswordVerify] = useState(false);
     const [loadingPasswordUpdate, setLoadingPasswordUpdate] = useState(false);
-    // Removed temp password reset from settings (moved to public flow)
     const [loadingDeleteAccount, setLoadingDeleteAccount] = useState(false);
+    const [loadingProfileImage, setLoadingProfileImage] = useState(false);
 
     const setNickname = (newNickname: string) => {
         setNicknameValue(newNickname);
@@ -61,7 +61,7 @@ export const useUserSettings = () => {
             return;
         }
         if (nickname === user?.nickname) {
-            return; // No change
+            return;
         }
         setLoadingNickname(true);
         try {
@@ -110,8 +110,6 @@ export const useUserSettings = () => {
         }
     };
 
-    // handleResetPassword removed
-
     const handleDeleteAccount = async () => {
         setLoadingDeleteAccount(true);
         try {
@@ -126,7 +124,31 @@ export const useUserSettings = () => {
         }
     };
 
+    const handleUpdateProfileImage = async (image: File) => {
+        setLoadingProfileImage(true);
+        try {
+            const imageUrl = await userService.updateProfileImage(image);
+            
+            // authStore의 user 정보 업데이트
+            if (imageUrl) {
+                setStoreProfileImage(imageUrl);
+            } else {
+                console.warn('응답 payload에서 이미지 URL을 찾을 수 없습니다:', imageUrl);
+            }
+            
+            showSnackbar('프로필 이미지가 성공적으로 변경되었습니다.', 'success');
+            return imageUrl;
+        } catch (error) {
+            console.error('프로필 이미지 업데이트 실패:', error);
+            showSnackbar('프로필 이미지 변경에 실패했습니다. 다시 시도해주세요.', 'error');
+            throw error;
+        } finally {
+            setLoadingProfileImage(false);
+        }
+    };
+
     return {
+        user,
         nickname,
         setNickname,
         currentPassword,
@@ -143,10 +165,12 @@ export const useUserSettings = () => {
         loadingPasswordVerify,
         loadingPasswordUpdate,
         loadingDeleteAccount,
+        loadingProfileImage,
         handleUpdateNickname,
         handleCheckNickname,
         handleVerifyPassword,
         handleUpdatePassword,
         handleDeleteAccount,
+        handleUpdateProfileImage,
     };
 };

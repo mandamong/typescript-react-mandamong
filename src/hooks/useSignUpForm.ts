@@ -32,12 +32,10 @@ export const useSignUpForm = () => {
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    // State for verification code resend
     const [isCodeSent, setIsCodeSent] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
     const timerId = useRef<NodeJS.Timeout | null>(null);
 
-    // Clear interval on unmount
     useEffect(() => {
         return () => {
             if (timerId.current) {

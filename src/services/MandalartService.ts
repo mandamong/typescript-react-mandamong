@@ -1,16 +1,15 @@
 import axiosInstance from '@/api/client/axios';
 import type {
-    GeminiObjectiveResponse,
-    GeminiSubjectResponse,
-    Mandalart,
-    MandalartDetailResponse,
-    MandalartRequest,
-    Page,
+  GeminiObjectiveResponse,
+  GeminiSubjectResponse,
+  Mandalart,
+  MandalartDetailResponse,
+  MandalartRequest,
+  Page,
 } from '@/types/mandalart';
 
 class MandalartService {
   async getMandalarts(page?: string, size?: string): Promise<Page<Mandalart> | undefined> {
-    // Provide sensible defaults: page 0, size 20 (was likely 5 by backend default)
     const pageNumber = page ?? '0';
     const pageSize = size ?? '20';
     const { data } = await axiosInstance.get<{ payload: Page<Mandalart> }>('/mandalart', {

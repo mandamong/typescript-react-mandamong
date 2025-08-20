@@ -72,14 +72,13 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
         const calc = () => {
             const vw = window.innerWidth;
             const vh = window.innerHeight;
-            // base grid intended max size
-            const baseSize = Math.min(vw - 32, 900); // 16px padding 양쪽 가정
+            const baseSize = Math.min(vw - 32, 900);
             const availableHeightForGrid = vh - reservedVertical;
             const nextScale = Math.max(minScale, Math.min(1, availableHeightForGrid / baseSize));
             setAutoScale(nextScale);
             // autoScale이 커지는 상황이면 사용자 지정 스케일이 없을 때만 반영
             if (userScale === null) {
-                // nothing else
+                // pass
             }
         };
         calc();
@@ -107,7 +106,6 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
         objIndex?: number;
     }[] = Array(25).fill(null).map(() => ({ item: null, type: 'empty' }));
 
-    // Center subject
     gridCells[12] = { item: subject, type: 'subject', palette: { light: '', main: '', dark: '' }, isMainSubject: true };
 
     const objectivePositions = [6, 8, 18, 16];

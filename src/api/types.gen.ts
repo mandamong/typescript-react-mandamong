@@ -508,7 +508,7 @@ export type PatchApiUserNicknameData = {
     };
     path?: never;
     query?: never;
-    url: '/api/user/nickname';
+    url: '/api/user';
 };
 
 export type PatchApiUserNicknameResponses = {
@@ -529,7 +529,7 @@ export type PatchApiUserPasswordData = {
     };
     path?: never;
     query?: never;
-    url: '/api/user/password';
+    url: '/api/user';
 };
 
 export type PatchApiUserPasswordResponses = {
@@ -548,7 +548,7 @@ export type PostApiUserPasswordData = {
     };
     path?: never;
     query?: never;
-    url: '/api/user/password';
+    url: '/api/user';
 };
 
 export type PostApiUserPasswordResponses = {

@@ -1,6 +1,7 @@
 import AccountManagement from '@/components/settings/AccountManagement';
 import NicknameChange from '@/components/settings/NicknameChange';
 import PasswordChange from '@/components/settings/PasswordChange';
+import ProfileImageUpload from '@/components/settings/ProfileImageUpload';
 import SettingsListItem from '@/components/settings/SettingsListItem';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { Box, Collapse, Container, Divider, Paper, Stack, Typography } from '@mui/material';
@@ -9,6 +10,7 @@ import React, { useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 const SettingsPage: React.FC = () => {
     const userSettings = useUserSettings();
@@ -43,6 +45,23 @@ const SettingsPage: React.FC = () => {
                                     loading={userSettings.loadingNickname}
                                     loadingCheck={userSettings.loadingNicknameCheck}
                                     nicknameChecked={userSettings.nicknameChecked}
+                                />
+                            </Box>
+                        </Collapse>
+                        <Divider />
+                        {/* 프로필 이미지 변경 섹션 */}
+                        <SettingsListItem
+                            title="프로필 이미지 변경"
+                            icon={<PhotoCameraIcon />}
+                            onClick={handleToggle('profileImage')}
+                            open={open === 'profileImage'}
+                        />
+                        <Collapse in={open === 'profileImage'} timeout="auto" unmountOnExit>
+                            <Box sx={{ p: 2, backgroundColor: 'var(--field-bg)' }}>
+                                <ProfileImageUpload
+                                    currentImageUrl={userSettings.user?.image}
+                                    loading={userSettings.loadingProfileImage}
+                                    onImageUpload={userSettings.handleUpdateProfileImage}
                                 />
                             </Box>
                         </Collapse>

@@ -2,7 +2,6 @@ import axiosInstance from '@/api/client/axios';
 import type { LoginResponse, RefreshTokenResponse, SignUpResponse } from '@/types/auth';
 import axios from 'axios';
 
-// Sign up payload (frontend form) allowing optional image
 interface SignUpPayload {
   email: string;
   password: string;
@@ -52,10 +51,9 @@ class AuthService {
     await axiosInstance.get('/auth/duplication/nickname', { params: { nickname } });
   }
 
-  // 인터셉터에서 무한 루프를 방지하기 위해 axiosInstance를 사용하지 않음
   async refreshToken(refreshToken: string): Promise<RefreshTokenResponse | undefined> {
     const { data } = await axios.post<RefreshTokenResponse>('/api/auth/token/refresh', { refreshToken }, {
-      baseURL: '/', // baseURL을 오버라이드하여 /api/ 경로를 직접 사용
+      baseURL: '/',
     });
     return data;
   }

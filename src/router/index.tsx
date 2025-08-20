@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from '../App';
 import ProtectedRoute from './ProtectedRoute';
 
-// Lazy load page components
 const HomePage = lazy(() => import('../pages/HomePage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const SignUpPage = lazy(() => import('../pages/SignUpPage'));

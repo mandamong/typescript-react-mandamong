@@ -1,4 +1,4 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 
 interface User {
     id: number;
@@ -18,6 +18,7 @@ interface AuthState {
     setToken: (accessToken: string) => void;
     setRefreshToken: (refreshToken: string) => void;
     setNickname: (nickname: string) => void;
+    setProfileImage: (image: string) => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -47,6 +48,13 @@ const useAuthStore = create<AuthState>((set) => ({
     },
     setNickname: (nickname) => set(state => {
         const user = state.user ? { ...state.user, nickname } : null;
+        if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+        return { ...state, user };
+    }),
+    setProfileImage: (image) => set(state => {
+        const user = state.user ? { ...state.user, image } : null;
         if (user) {
             localStorage.setItem('user', JSON.stringify(user));
         }

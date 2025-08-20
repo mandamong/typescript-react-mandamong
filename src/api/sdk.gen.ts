@@ -1,6 +1,7 @@
 
 
-import {type Client, formDataBodySerializer, type Options as ClientOptions, type TDataShape} from './client';
+import { formDataBodySerializer, type Client, type Options as ClientOptions, type TDataShape } from './client';
+import { client as _heyApiClient } from './client.gen';
 import type {
     DeleteApiAuthBasicData,
     DeleteApiAuthBasicResponses,
@@ -53,7 +54,6 @@ import type {
     PostApiUserPasswordData,
     PostApiUserPasswordResponses
 } from './types.gen';
-import {client as _heyApiClient} from './client.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> =
     ClientOptions<TData, ThrowOnError>
@@ -373,7 +373,7 @@ export const patchApiUserNickname = <ThrowOnError extends boolean = false>(optio
                 type: 'http'
             }
         ],
-        url: '/api/user/nickname',
+        url: '/api/user',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -393,7 +393,7 @@ export const patchApiUserPassword = <ThrowOnError extends boolean = false>(optio
                 type: 'http'
             }
         ],
-        url: '/api/user/password',
+        url: '/api/user',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -413,7 +413,7 @@ export const postApiUserPassword = <ThrowOnError extends boolean = false>(option
                 type: 'http'
             }
         ],
-        url: '/api/user/password',
+        url: '/api/user',
         ...options,
         headers: {
             'Content-Type': 'application/json',

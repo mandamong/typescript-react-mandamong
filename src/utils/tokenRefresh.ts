@@ -30,7 +30,6 @@ export const handleTokenRefresh = async (error: AxiosError) => {
                 authStore.setRefreshToken(payload.refreshToken);
 
                                 originalRequest.headers.set('Authorization', `Bearer ${payload.accessToken}`);
-                                // Use fetch directly to avoid RequestOptions typing mismatch
                                 const newHeaders = new Headers();
                                 Object.entries(originalRequest.headers as Record<string, string>).forEach(([k, v]) => newHeaders.set(k, v));
                                 const retried = new Request(originalRequest.url ?? '', {
