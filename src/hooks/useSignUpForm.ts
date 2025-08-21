@@ -20,14 +20,20 @@ export const useSignUpForm = () => {
     const [image, setImage] = useState<File | null>(null);
     const [language, setLanguage] = useState('ko_KR');
 
-    const [loadingEmailCheck, setLoadingEmailCheck] = useState(false);
+    // 수동 중복확인 로딩 제거 (자동 검사 전환)
     const [loadingRequestVerification, setLoadingRequestVerification] = useState(false);
     const [loadingVerifyCode, setLoadingVerifyCode] = useState(false);
-    const [loadingNicknameCheck, setLoadingNicknameCheck] = useState(false);
+    // 수동 닉네임 중복확인 로딩 제거 (자동 검사 전환)
     const [loadingSignUp, setLoadingSignUp] = useState(false);
+    const [autoCheckingEmail, setAutoCheckingEmail] = useState(false);
+    const [autoCheckingNickname, setAutoCheckingNickname] = useState(false);
+    const lastEmailCheckStatus = useRef<'success' | 'error' | undefined>(undefined);
+    const lastNicknameCheckStatus = useRef<'success' | 'error' | undefined>(undefined);
 
-    const [emailError, setEmailError] = useState(false);
-    const [nicknameError, setNicknameError] = useState(false);
+    const [emailError, setEmailError] = useState(false); // 형식 오류
+    const [emailCheckFailed] = useState(false); // (자동 검사에서 snackbar만 사용, 필드 에러는 바로 표현)
+    const [nicknameError, setNicknameError] = useState(false); // 형식 오류
+    const [nicknameCheckFailed] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -43,6 +49,66 @@ export const useSignUpForm = () => {
             }
         };
     }, []);
+
+    // 디바운스 자동 이메일 중복 검사
+    useEffect(() => {
+        if (!email || (emailChecked && emailVerified)) return; // 이미 인증 완료되면 재요청 안함
+        if (!validateEmail(email)) {
+            setEmailChecked(false);
+            return;
+        }
+        const debounce = setTimeout(async () => {
+            setAutoCheckingEmail(true);
+            try {
+                await authService.checkEmailDuplication(email);
+                setEmailChecked(true);
+                if (lastEmailCheckStatus.current !== 'success') {
+                    showSnackbar('사용 가능한 이메일입니다.', 'success');
+                    lastEmailCheckStatus.current = 'success';
+                }
+            } catch {
+                setEmailChecked(false);
+                if (lastEmailCheckStatus.current !== 'error') {
+                    showSnackbar('이미 사용 중인 이메일입니다.', 'error');
+                    lastEmailCheckStatus.current = 'error';
+                }
+            } finally {
+                setAutoCheckingEmail(false);
+            }
+        }, 600);
+        return () => clearTimeout(debounce);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [email]);
+
+    // 디바운스 자동 닉네임 중복 검사
+    useEffect(() => {
+        if (!nickname) return;
+        if (!validateNickname(nickname)) {
+            setNicknameChecked(false);
+            return;
+        }
+        const debounce = setTimeout(async () => {
+            setAutoCheckingNickname(true);
+            try {
+                await authService.checkNicknameDuplication(nickname);
+                setNicknameChecked(true);
+                if (lastNicknameCheckStatus.current !== 'success') {
+                    showSnackbar('사용 가능한 닉네임입니다.', 'success');
+                    lastNicknameCheckStatus.current = 'success';
+                }
+            } catch {
+                setNicknameChecked(false);
+                if (lastNicknameCheckStatus.current !== 'error') {
+                    showSnackbar('이미 사용 중인 닉네임입니다.', 'error');
+                    lastNicknameCheckStatus.current = 'error';
+                }
+            } finally {
+                setAutoCheckingNickname(false);
+            }
+        }, 600);
+        return () => clearTimeout(debounce);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [nickname]);
 
     const validateEmail = (email: string) => {
         return /^["\w-.]+@(["\w-]+\.)+[\w-]{2,4}$/.test(email);
@@ -78,23 +144,7 @@ export const useSignUpForm = () => {
         return true;
     }, [showSnackbar]);
 
-    const handleCheckEmail = useCallback(async () => {
-        if (!validateEmail(email)) {
-            setEmailError(true);
-            showSnackbar('유효한 이메일 주소를 입력해주세요.', 'warning');
-            return;
-        }
-        setLoadingEmailCheck(true);
-        try {
-            await authService.checkEmailDuplication(email);
-            showSnackbar('사용 가능한 이메일입니다.', 'success');
-            setEmailChecked(true);
-        } catch (_error) {
-            showSnackbar('이미 사용 중인 이메일입니다.', 'error');
-        } finally {
-            setLoadingEmailCheck(false);
-        }
-    }, [email, showSnackbar]);
+    // 수동 이메일 중복확인 핸들러 제거 (자동 검사)
 
     const handleRequestVerification = useCallback(async () => {
         if (!emailChecked) {
@@ -145,23 +195,7 @@ export const useSignUpForm = () => {
         }
     }, [email, verificationCode, showSnackbar]);
 
-    const handleCheckNickname = useCallback(async () => {
-        if (!validateNickname(nickname)) {
-            setNicknameError(true);
-            showSnackbar('닉네임은 2자 이상 15자 이하의 영문, 숫자, 한글만 가능합니다.', 'warning');
-            return;
-        }
-        setLoadingNicknameCheck(true);
-        try {
-            await authService.checkNicknameDuplication(nickname);
-            showSnackbar('사용 가능한 닉네임입니다.', 'success');
-            setNicknameChecked(true);
-        } catch (_error) {
-            showSnackbar('이미 사용 중인 닉네임입니다.', 'error');
-        } finally {
-            setLoadingNicknameCheck(false);
-        }
-    }, [nickname, showSnackbar]);
+    // 수동 닉네임 중복확인 핸들러 제거 (자동 검사)
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
@@ -240,14 +274,16 @@ export const useSignUpForm = () => {
         setImage,
         language,
         setLanguage,
-        loadingEmailCheck,
         loadingRequestVerification,
         loadingVerifyCode,
-        loadingNicknameCheck,
         loadingSignUp,
+    autoCheckingEmail,
+    autoCheckingNickname,
         emailError,
+        emailCheckFailed,
         setEmailError,
         nicknameError,
+        nicknameCheckFailed,
         setNicknameError,
         passwordError,
         setPasswordError,
@@ -257,10 +293,8 @@ export const useSignUpForm = () => {
         setImageError,
         isCodeSent,
         resendCooldown,
-        handleCheckEmail,
         handleRequestVerification,
         handleVerifyCode,
-        handleCheckNickname,
         handleSubmit,
     };
 };

@@ -41,14 +41,16 @@ const SignUpPage: React.FC = () => {
     setImage,
     language,
     setLanguage,
-    loadingEmailCheck,
     loadingRequestVerification,
     loadingVerifyCode,
-    loadingNicknameCheck,
     loadingSignUp,
+  autoCheckingEmail,
+  autoCheckingNickname,
     emailError,
+    emailCheckFailed,
     setEmailError,
     nicknameError,
+    nicknameCheckFailed,
     setNicknameError,
     passwordError,
     setPasswordError,
@@ -58,10 +60,8 @@ const SignUpPage: React.FC = () => {
     setImageError,
     isCodeSent,
     resendCooldown,
-    handleCheckEmail,
     handleRequestVerification,
     handleVerifyCode,
-    handleCheckNickname,
     handleSubmit,
   } = useSignUpForm();
 
@@ -83,20 +83,20 @@ const SignUpPage: React.FC = () => {
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <Stack spacing={2.5}>
             <EmailVerificationSection
+              emailCheckFailed={emailCheckFailed}
               email={email}
               setEmail={setEmail}
               emailChecked={emailChecked}
               setEmailChecked={setEmailChecked}
+              autoCheckingEmail={autoCheckingEmail}
               verificationCode={verificationCode}
               setVerificationCode={setVerificationCode}
               emailVerified={emailVerified}
               setEmailVerified={setEmailVerified}
-              loadingEmailCheck={loadingEmailCheck}
               loadingRequestVerification={loadingRequestVerification}
               loadingVerifyCode={loadingVerifyCode}
               emailError={emailError}
               setEmailError={setEmailError}
-              handleCheckEmail={handleCheckEmail}
               handleRequestVerification={handleRequestVerification}
               handleVerifyCode={handleVerifyCode}
               isCodeSent={isCodeSent}
@@ -108,10 +108,10 @@ const SignUpPage: React.FC = () => {
               setNickname={setNickname}
               nicknameChecked={nicknameChecked}
               setNicknameChecked={setNicknameChecked}
-              loadingNicknameCheck={loadingNicknameCheck}
+              autoCheckingNickname={autoCheckingNickname}
               nicknameError={nicknameError}
               setNicknameError={setNicknameError}
-              handleCheckNickname={handleCheckNickname}
+              nicknameCheckFailed={nicknameCheckFailed}
             />
 
             <PasswordSection

@@ -26,7 +26,7 @@ export default tseslint.config([
       ],
     },
   },
-  // Loosen rules for generated code and type augmentations
+  
   {
     files: ['src/api/**/*.{ts,tsx}'],
     rules: {

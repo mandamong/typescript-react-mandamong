@@ -71,7 +71,7 @@ export type GetApiAuthEmailVerificationData = {
         email: string;
         code: string;
     };
-    url: '/api/auth/email/verification';
+    url: '/api/auth/email';
 };
 
 export type GetApiAuthEmailVerificationErrors = {
@@ -103,7 +103,7 @@ export type PostApiAuthEmailVerificationData = {
     };
     path?: never;
     query?: never;
-    url: '/api/auth/email/verification';
+    url: '/api/auth/email';
 };
 
 export type PostApiAuthEmailVerificationResponses = {
@@ -226,7 +226,7 @@ export type PostApiAuthTokenRefreshResponse = PostApiAuthTokenRefreshResponses[k
 
 export type PostApiGeminiSubjectData = {
     body?: {
-        prompt: string;
+        subject: string;
     };
     path?: never;
     query?: never;
@@ -248,7 +248,7 @@ export type PostApiGeminiSubjectResponse = PostApiGeminiSubjectResponses[keyof P
 
 export type PostApiGeminiObjectiveData = {
     body?: {
-        prompt: string;
+        objective: string;
     };
     path?: never;
     query?: never;
@@ -504,7 +504,7 @@ export type GetApiMandalartByMandalartIdResponse = GetApiMandalartByMandalartIdR
 
 export type PatchApiUserNicknameData = {
     body?: {
-        updated: string;
+        nickname: string;
     };
     path?: never;
     query?: never;
@@ -525,7 +525,7 @@ export type PatchApiUserNicknameResponse = PatchApiUserNicknameResponses[keyof P
 
 export type PatchApiUserPasswordData = {
     body?: {
-        updated: string;
+        password: string;
     };
     path?: never;
     query?: never;
@@ -565,7 +565,7 @@ export type PatchApiUserPasswordInitializeData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/user/password/initialize';
+    url: '/api/user/password';
 };
 
 export type PatchApiUserPasswordInitializeResponses = {

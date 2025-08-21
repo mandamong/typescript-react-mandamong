@@ -1,35 +1,42 @@
 import axiosInstance from '@/api/client/axios';
 
 class UserService {
-  async updateNickname(updated: string): Promise<{ updated: string }> {
-    const { data } = await axiosInstance.patch<{ payload: { updated: string } }>('/user/nickname', { updated });
-    return data.payload;
+  async updateNickname(nickname: string): Promise<string> {
+    const formData = new FormData();
+    formData.append('nickname', nickname);
+  await axiosInstance.patch<unknown>('/user', formData);
+    return nickname;
   }
 
   async verifyPassword(password: string): Promise<void> {
     await axiosInstance.post('/user/password', { password });
   }
 
-  async updatePassword(password: string): Promise<void> {
-    await axiosInstance.patch('/user/password', { updated: password });
+  async updatePassword(password: string): Promise<boolean> {
+    const formData = new FormData();
+    formData.append('password', password);
+  const { data } = await axiosInstance.patch<{ success: boolean; payload: null; error: unknown }>('/user', formData);
+    return data.success;
   }
 
-  async resetPassword(email: string): Promise<{ updated: string }> {
-    const { data } = await axiosInstance.patch<{ payload: { updated: string } }>('/user/password/initialize', { email });
-    return data.payload;
+  async resetPassword(email: string): Promise<{ email: string }> {
+  // 백엔드가 { payload: { email, password } } 또는 { payload: { email } } 혹은 { payload: { password } } 를 반환한다고 가정
+  const { data } = await axiosInstance.patch<{ payload: any }>('/user/password', { email });
+  return data.payload;
   }
 
-  async updateProfileImage(image: File): Promise<any> {
+  async updateProfileImage(image: File): Promise<string> {
     const formData = new FormData();
     formData.append('image', image);
-    
-    const response = await axiosInstance.patch('/user', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data.payload;
+    const { data } = await axiosInstance.patch<{ success?: boolean; payload?: any; error?: any }>(
+      '/user',
+      formData,
+    );
+  if (data?.payload == null) return '';
+    const payload = data.payload;
+    const url = typeof payload === 'string' ? payload : payload.image;
+  if (!url) return '';
+    return url;
   }
 }
 

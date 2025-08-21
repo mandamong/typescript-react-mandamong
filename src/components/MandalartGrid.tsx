@@ -1,3 +1,4 @@
+import { resolveMandalartItemName } from '@/utils/mandalartName';
 import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -7,11 +8,14 @@ import React from 'react';
 import Cell from './Cell';
 import type { ColorPalette, Item } from './types';
 
+type RawSubject = { id: number; name?: string; subject?: string; status?: string };
+type RawObjective = { id: number; name?: string; objective?: string; status?: string };
+type RawAction = { id: number; name?: string; action?: string; status?: string };
 export interface MandalartGridData {
     mandalart: { id: number; name: string; status?: string };
-    subject: { id: number; name: string; status?: string };
-    objectives: Array<{ id: number; name: string; status?: string }>;
-    actions: Array<Array<{ id: number; name: string; status?: string }>>;
+    subject: RawSubject;
+    objectives: RawObjective[];
+    actions: RawAction[][];
 }
 
 interface MandalartGridProps {
@@ -23,12 +27,6 @@ interface MandalartGridProps {
     loadingObjectiveAI?: number | null;
     loadingSubMandalartAI?: boolean;
     readOnly?: boolean;
-    /**
-     * autoFit: 화면 높이에 맞게 그리드를 scale로 축소 (기본 true)
-     * reservedVertical: 헤더/여백 등으로 확보할 여유 높이(px) (기본 140)
-     * minScale: 너무 작아지지 않도록 하는 최소 scale (기본 0.75)
-     * showZoomControls: 사용자 확대/축소 컨트롤 표시 (기본 true)
-     */
     autoFit?: boolean;
     reservedVertical?: number;
     minScale?: number;
@@ -106,16 +104,17 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
         objIndex?: number;
     }[] = Array(25).fill(null).map(() => ({ item: null, type: 'empty' }));
 
-    gridCells[12] = { item: subject, type: 'subject', palette: { light: '', main: '', dark: '' }, isMainSubject: true };
+    const subjectItem: Item | null = subject ? { id: subject.id, name: resolveMandalartItemName(subject), status: subject.status } : null;
+    gridCells[12] = { item: subjectItem, type: 'subject', palette: { light: '', main: '', dark: '' }, isMainSubject: true };
 
     const objectivePositions = [6, 8, 18, 16];
     const objectiveDataIndices = [0, 1, 2, 3];
 
     for (let i = 0; i < 4; i++) {
-        const obj = objectives[objectiveDataIndices[i]];
+    const obj = objectives[objectiveDataIndices[i]];
         if (obj) {
             gridCells[objectivePositions[i]] = {
-                item: obj,
+                item: { id: obj.id, name: resolveMandalartItemName(obj), status: obj.status },
                 type: 'objective',
                 palette: objectivePalettes[objectiveDataIndices[i]],
                 isCenter: true,
@@ -130,11 +129,15 @@ const MandalartGrid: React.FC<MandalartGridProps> = ({
     const actionGroups = [A1_indices, A2_indices, A3_indices, A4_indices];
 
     const fillActions = (indices: number[], objIndex: number) => {
-        const objActions = actions[objIndex] || [];
+    const objActions = actions[objIndex] || [];
         for (let i = 0; i < indices.length; i++) {
             if (objActions[i]) {
                 gridCells[indices[i]] = {
-                    item: objActions[i],
+                    item: {
+                        id: objActions[i].id,
+                        name: resolveMandalartItemName(objActions[i]),
+                        status: objActions[i].status,
+                    },
                     type: 'action',
                     palette: objectivePalettes[objIndex],
                     objIndex: objIndex,

@@ -1,4 +1,4 @@
-import { useThemeMode } from '@/contexts/ThemeModeContext';
+import { useThemeMode } from '@/contexts/useThemeMode';
 import useAuthStore from '@/store/authStore';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';

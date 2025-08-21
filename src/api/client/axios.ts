@@ -4,9 +4,7 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axio
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: '/api',
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // Content-Type 은 요청 데이터 타입에 따라 axios가 자동 지정 (FormData 업로드 방해 방지 위해 전역 지정 제거)
   withCredentials: true,
 });
 

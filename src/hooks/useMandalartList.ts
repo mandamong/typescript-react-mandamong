@@ -1,33 +1,11 @@
 import { useSnackbar } from '@/hooks/useSnackbar';
 import { mandalartService } from '@/services/MandalartService';
-import useAuthStore from '@/store/authStore'; // authStore import 추가
+import useAuthStore from '@/store/authStore';
+import type { MandalartListItem } from '@/types/mandalart';
 import { useEffect, useState } from 'react';
 
-export interface MandalartContent {
-    mandalart: {
-        id: number;
-        name: string;
-        status: string;
-    };
-    subject: {
-        id: number;
-        name: string;
-        status: string;
-    };
-    objectives: Array<{
-        id: number;
-        name: string;
-        status: string;
-    }>;
-    actions: Array<Array<{
-        id: number;
-        name: string;
-        status: string;
-    }>>;
-}
-
 export const useMandalartList = () => {
-    const [mandalarts, setMandalarts] = useState<MandalartContent[]>([]);
+    const [mandalarts, setMandalarts] = useState<MandalartListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [page, setPage] = useState(0);
@@ -41,9 +19,12 @@ export const useMandalartList = () => {
             try {
                 const response = await mandalartService.getMandalarts(String(0), String(20));
                 if (response && response.content) {
-                    setMandalarts(response.content);
+                    // 새 응답 형태: { name, subject, status, id? }
+                    setMandalarts(response.content as unknown as MandalartListItem[]);
                     setHasNext(!!response.hasNext);
                     setPage(0);
+                } else {
+                    setMandalarts([]);
                 }
             } catch (error) {
                 console.error('Error fetching mandalarts:', error);
@@ -63,7 +44,7 @@ export const useMandalartList = () => {
             setHasNext(false);
             setPage(0);
         }
-    }, [isAuthenticated, showSnackbar]); // useEffect 의존성 배열에 isAuthenticated 추가
+    }, [isAuthenticated, showSnackbar]);
 
     return {
         mandalarts,
@@ -77,7 +58,10 @@ export const useMandalartList = () => {
                 const nextPage = page + 1;
                 const response = await mandalartService.getMandalarts(String(nextPage), String(20));
                 if (response && response.content) {
-                    setMandalarts((prev) => [...prev, ...response.content]);
+                    setMandalarts((prev) => [
+                        ...prev,
+                        ...(response.content as unknown as MandalartListItem[]),
+                    ]);
                     setHasNext(!!response.hasNext);
                     setPage(nextPage);
                 }

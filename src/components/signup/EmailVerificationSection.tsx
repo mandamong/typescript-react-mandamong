@@ -1,4 +1,5 @@
-import { Box, Button, CircularProgress, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { Box, CircularProgress, Fade, InputAdornment, Stack, TextField, Typography, Button } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import React from 'react';
 
 interface EmailVerificationSectionProps {
@@ -6,18 +7,20 @@ interface EmailVerificationSectionProps {
     setEmail: (email: string) => void;
     emailChecked: boolean;
     setEmailChecked: (checked: boolean) => void;
+    autoCheckingEmail?: boolean;
+    emailCheckFailed?: boolean;
     verificationCode: string;
     setVerificationCode: (code: string) => void;
     emailVerified: boolean;
     setEmailVerified: (verified: boolean) => void;
-    loadingEmailCheck: boolean;
+    // loadingEmailCheck 제거 (자동 검사)
     loadingRequestVerification: boolean;
     loadingVerifyCode: boolean;
     emailError: boolean;
     setEmailError: (error: boolean) => void;
     isCodeSent: boolean;
     resendCooldown: number;
-    handleCheckEmail: () => void;
+    // 수동 중복확인 제거 (자동 검사 전용)
     handleRequestVerification: () => void;
     handleVerifyCode: () => void;
 }
@@ -27,18 +30,18 @@ const EmailVerificationSection: React.FC<EmailVerificationSectionProps> = ({
     setEmail,
     emailChecked,
     setEmailChecked,
+    autoCheckingEmail,
+    emailCheckFailed,
     verificationCode,
     setVerificationCode,
     emailVerified,
     setEmailVerified,
-    loadingEmailCheck,
     loadingRequestVerification,
     loadingVerifyCode,
     emailError,
     setEmailError,
     isCodeSent,
     resendCooldown,
-    handleCheckEmail,
     handleRequestVerification,
     handleVerifyCode,
 }) => {
@@ -58,17 +61,37 @@ const EmailVerificationSection: React.FC<EmailVerificationSectionProps> = ({
                     setEmailChecked(false);
                     setEmailVerified(false);
                 }}
-                error={emailError}
-                helperText={emailError ? '유효한 이메일 주소를 입력해주세요.' : ''}
+                error={!!emailCheckFailed}
+                helperText={emailError ? '유효한 이메일 주소를 입력해주세요.' : emailCheckFailed ? '이미 사용 중인 이메일입니다.' : ''}
+                FormHelperTextProps={{
+                    sx: {
+                        m: 0.5,
+                        fontSize: 12,
+                        color: emailCheckFailed ? 'error.main' : emailError ? 'warning.main' : 'text.secondary'
+                    }
+                }}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
-                <Button
-                                onClick={handleCheckEmail}
-                disabled={!email || loadingEmailCheck || emailChecked}
-                            >
-                                {loadingEmailCheck ? <CircularProgress size={24}/> : '중복확인'}
-                            </Button>
+                            {autoCheckingEmail && !emailChecked && (
+                                <CircularProgress size={20} />
+                            )}
+                            <Fade in={emailChecked && !autoCheckingEmail && !emailCheckFailed} timeout={250}>
+                                <CheckCircleIcon
+                                    color="success"
+                                    fontSize="small"
+                                    sx={{
+                                        ml: 0.5,
+                                        '@keyframes popIn': {
+                                            '0%': { transform: 'scale(0.4)', opacity: 0 },
+                                            '70%': { transform: 'scale(1.05)', opacity: 1 },
+                                            '100%': { transform: 'scale(1)', opacity: 1 }
+                                        },
+                                        animation: 'popIn 300ms ease'
+                                    }}
+                                    aria-label="사용 가능한 이메일"
+                                />
+                            </Fade>
                         </InputAdornment>
                     ),
                 }}

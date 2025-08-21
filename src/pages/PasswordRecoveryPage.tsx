@@ -4,22 +4,22 @@ import { userService } from "@/services/UserService";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import {
-    Avatar,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    IconButton,
-    Link,
-    Paper,
-    Stack,
-    TextField,
-    Typography,
+  Avatar,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Link,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -103,16 +103,22 @@ const PasswordRecoveryPage: React.FC = () => {
     }
     setLoadingReset(true);
     try {
-      const { updated } = await userService.resetPassword(email);
-      setTempPassword(updated);
+  const payload = await userService.resetPassword(email);
+  const pwd = (payload as any)?.password;
+      if (pwd) {
+        setTempPassword(pwd);
+        showSnackbar("임시 비밀번호가 생성되었습니다.", "success");
+      } else {
+        setTempPassword('');
+        showSnackbar("임시 비밀번호를 이메일로 발송했습니다.", "success");
+      }
       setOpenDialog(true);
-      showSnackbar("임시 비밀번호가 생성되었습니다.", "success");
     } catch {
       showSnackbar("임시 비밀번호 생성에 실패했습니다.", "error");
     } finally {
       setLoadingReset(false);
     }
-  }, [emailVerified, showSnackbar]);
+  }, [emailVerified, email, showSnackbar]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(tempPassword);
@@ -120,28 +126,44 @@ const PasswordRecoveryPage: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box sx={{ mt: { xs: 4, md: 8 }, mb: { xs: 4, md: 8 } }}>
-        <Paper elevation={0} sx={{ p: { xs: 3, md: 5 } }}>
+    <Container component="main" maxWidth="sm" sx={{ px: { xs: 2.2, md: 2 } }}>
+      <Box sx={{
+        minHeight: { xs: 'calc(100dvh - 40px)', md: '100dvh' },
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: { xs: 'flex-start', md: 'center' },
+        py: { xs: 2.5, md: 4 }
+      }}>
+        <Paper elevation={0} sx={{
+          p: { xs: 3, md: 4 },
+          borderRadius: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          maxWidth: 460,
+          width: '100%',
+          mx: 'auto',
+          backdropFilter: { md: 'saturate(1.2) blur(3px)' },
+          backgroundColor: { md: 'background.paper' }
+        }}>
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              mb: 2,
+              mb: { xs: 2, md: 3 },
             }}
           >
-            <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
+            <Avatar sx={{ bgcolor: "primary.main", mb: 1, width: { xs: 56, md: 60 }, height: { xs: 56, md: 60 } }}>
               <LockResetIcon />
             </Avatar>
-            <Typography component="h1" variant="h5" sx={{ fontWeight: 800 }}>
+            <Typography component="h1" variant="h5" sx={{ fontWeight: 800, fontSize: { xs: '1.32rem', md: '1.45rem' }, letterSpacing: '.2px' }}>
               비밀번호 찾기
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, textAlign: 'center', lineHeight: 1.42 }}>
               이메일 인증 후 임시 비밀번호를 발급받을 수 있습니다.
             </Typography>
           </Box>
-          <Stack spacing={2.5}>
+          <Stack spacing={{ xs: 2.2, md: 2.8 }}>
             <TextField
               fullWidth
               label="이메일"
@@ -157,40 +179,79 @@ const PasswordRecoveryPage: React.FC = () => {
               }
             />
             <Box>
-              <Stack direction="row" spacing={1}>
+              <Box sx={{ mb: 1, fontSize: 12, fontWeight: 500, color: 'text.secondary', letterSpacing: '.2px' }}>
+                1. 이메일 인증
+              </Box>
+              <Stack
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={1}
+                alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+              >
                 <Button
                   variant="outlined"
                   disabled={
+                    emailVerified ||
                     loadingRequestVerification ||
                     !validateEmail(email) ||
                     resendCooldown > 0
                   }
                   onClick={handleRequestVerification}
                   size="small"
+                  fullWidth
+                  sx={{
+                    minWidth: { sm: 140 },
+                    height: 42,
+                    fontSize: 14,
+                    fontWeight: 500,
+                    whiteSpace: 'nowrap'
+                  }}
                 >
                   {loadingRequestVerification ? (
                     <CircularProgress size={20} />
+                  ) : emailVerified ? (
+                    '인증 완료'
                   ) : resendCooldown > 0 ? (
                     `재전송 (${resendCooldown}s)`
                   ) : (
                     "인증 코드 받기"
                   )}
                 </Button>
-                <TextField
-                  label="인증 코드"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  size="small"
-                  sx={{ flexGrow: 1 }}
-                />
-                <Button
-                  variant="contained"
-                  disabled={loadingVerifyCode || !verificationCode}
-                  onClick={handleVerifyCode}
-                  size="small"
-                >
-                  {loadingVerifyCode ? <CircularProgress size={20} /> : "확인"}
-                </Button>
+                {!emailVerified && (
+                  <>
+                    <TextField
+                      label="인증 코드"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      size="small"
+                      fullWidth
+                      sx={{
+                        flexGrow: 1,
+                        '& .MuiInputBase-root': {
+                          height: 42,
+                        },
+                        '& .MuiInputBase-input': {
+                          pt: 0,
+                          pb: 0,
+                        }
+                      }}
+                    />
+                    <Button
+                      variant="contained"
+                      disabled={loadingVerifyCode || !verificationCode}
+                      onClick={handleVerifyCode}
+                      size="small"
+                      fullWidth
+                      sx={{
+                        minWidth: { sm: 90 },
+                        height: 42,
+                        fontSize: 14,
+                        fontWeight: 600
+                      }}
+                    >
+                      {loadingVerifyCode ? <CircularProgress size={20} /> : "확인"}
+                    </Button>
+                  </>
+                )}
               </Stack>
               {isCodeSent && !emailVerified && (
                 <Typography
@@ -201,20 +262,26 @@ const PasswordRecoveryPage: React.FC = () => {
                   이메일로 전송된 6자리 코드를 입력하세요.
                 </Typography>
               )}
-              {emailVerified && (
-                <Typography
-                  variant="caption"
-                  color="success.main"
-                  sx={{ mt: 1, display: "block" }}
-                >
-                  이메일 인증 완료
-                </Typography>
-              )}
+               {emailVerified && (
+                 <Typography
+                   variant="caption"
+                   color="success.main"
+                   sx={{ mt: 1, display: "block", fontWeight: 600 }}
+                 >
+                   이메일 인증 완료
+                 </Typography>
+               )}
             </Box>
+            <Box>
+              <Box sx={{ mb: 1, fontSize: 12, fontWeight: 500, color: 'text.secondary', letterSpacing: '.2px' }}>
+                2. 임시 비밀번호 발급
+              </Box>
             <Button
               variant="contained"
               disabled={loadingReset || !emailVerified}
               onClick={handleResetPassword}
+              fullWidth
+              sx={{ py: 1.1, fontWeight: 600 }}
             >
               {loadingReset ? (
                 <CircularProgress size={24} />
@@ -222,6 +289,7 @@ const PasswordRecoveryPage: React.FC = () => {
                 "임시 비밀번호 발급"
               )}
             </Button>
+            </Box>
             <Box sx={{ display: "flex", justifyContent: "center" }}>
               <Link
                 component={RouterLink}
@@ -236,22 +304,26 @@ const PasswordRecoveryPage: React.FC = () => {
         </Paper>
       </Box>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>임시 비밀번호</DialogTitle>
+  <Dialog open={openDialog} fullWidth maxWidth="xs" onClose={() => setOpenDialog(false)}>
+  <DialogTitle>임시 비밀번호</DialogTitle>
         <DialogContent>
           <DialogContentText
             sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            <Typography
-              variant="h6"
-              component="span"
-              sx={{ fontWeight: "bold" }}
-            >
-              {tempPassword}
-            </Typography>
-            <IconButton onClick={handleCopy} size="small">
-              <ContentCopyIcon fontSize="small" />
-            </IconButton>
+            {tempPassword ? (
+              <>
+                <Typography variant="h6" component="span" sx={{ fontWeight: "bold" }}>
+                  {tempPassword}
+                </Typography>
+                <IconButton onClick={handleCopy} size="small" aria-label="임시 비밀번호 복사">
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                이메일로 임시 비밀번호를 전송했습니다.
+              </Typography>
+            )}
           </DialogContentText>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             로그인 후 반드시 새 비밀번호로 변경해주세요.

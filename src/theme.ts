@@ -1,7 +1,6 @@
 import { alpha } from '@mui/material';
 import { createTheme, type Theme } from '@mui/material/styles';
 
-// Toss-like sleek theme: clean blues, subtle grays, rounded corners, soft shadows
 const primaryMain = '#3182f6';
 const light = {
     gray900: '#0f172a',
@@ -81,7 +80,6 @@ export const createAppTheme = (mode: ThemeMode) => {
                         letterSpacing: '-0.01em',
                         WebkitFontSmoothing: 'antialiased',
                         MozOsxFontSmoothing: 'grayscale',
-                                        // Expose a few CSS variables for global css usage (e.g., autofill styling)
                                         '--field-bg': theme.palette.background.paper,
                                         '--field-border': theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.12)' : '#e5e7eb',
                                         '--text-primary': theme.palette.text.primary,

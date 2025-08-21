@@ -3,10 +3,14 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Avatar, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import React, { useRef, useState } from 'react';
 
+interface ProfileImageUploadResult {
+    imageUrl?: string;
+}
+
 interface ProfileImageUploadProps {
     currentImageUrl?: string;
     loading: boolean;
-    onImageUpload: (file: File) => Promise<any>;
+    onImageUpload: (file: File) => Promise<ProfileImageUploadResult | void>;
 }
 
 const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
@@ -46,7 +50,7 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
         try {
             await onImageUpload(file);
             setPreviewUrl(null); // 업로드 성공 시 미리보기 초기화
-        } catch (error) {
+    } catch (_err) {
             setPreviewUrl(null); // 업로드 실패 시 미리보기 초기화
         }
 

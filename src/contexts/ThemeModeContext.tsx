@@ -1,14 +1,7 @@
 import { createAppTheme, type ThemeMode } from '@/theme';
 import { ThemeProvider } from '@mui/material/styles';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-
-interface ThemeModeValue {
-  mode: ThemeMode;
-  toggle: () => void;
-  setMode: (m: ThemeMode) => void;
-}
-
-const Ctx = createContext<ThemeModeValue | undefined>(undefined);
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ThemeModeContext } from './ThemeModeContextBase';
 
 export const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setModeState] = useState<ThemeMode>(() => {
@@ -30,14 +23,9 @@ export const ThemeModeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const value = useMemo(() => ({ mode, toggle, setMode }), [mode, toggle, setMode]);
 
   return (
-    <Ctx.Provider value={value}>
+  <ThemeModeContext.Provider value={value}>
       <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    </Ctx.Provider>
+  </ThemeModeContext.Provider>
   );
 };
-
-export const useThemeMode = () => {
-  const ctx = useContext(Ctx);
-  if (!ctx) throw new Error('useThemeMode must be used within ThemeModeProvider');
-  return ctx;
-};
+// useThemeMode 훅은 별도 파일로 분리 (useThemeMode.ts)

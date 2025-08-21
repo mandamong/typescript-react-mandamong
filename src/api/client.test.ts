@@ -1,39 +1,33 @@
-import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
-import {client} from '@/api/client.gen';
-import {authService} from '@/services/AuthService';
+import { client } from '@/api/client.gen';
+import { authService } from '@/services/AuthService';
 import useAuthStore from '@/store/authStore';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock the authService
 vi.mock('@/services/AuthService', () => ({
     authService: {
         refreshToken: vi.fn(),
     },
 }));
 
-// Mock the snackbar context
 vi.mock('@/contexts/SnackbarContext', () => ({
     useSnackbar: () => ({
         showSnackbar: vi.fn(),
     }),
 }));
 
-import {setupErrorInterceptor} from './interceptor';
+import { setupErrorInterceptor } from './interceptor';
 
 describe('API Client Interceptor', () => {
     let fetchMock: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
-        // Reset the auth store
         useAuthStore.setState({ accessToken: null, refreshToken: null, user: null });
 
-        // Mock fetch
         fetchMock = vi.fn();
         global.fetch = fetchMock;
 
-        // Set base URL for the client
         client.setConfig({ baseUrl: 'http://localhost:8080' });
 
-        // Mock window.location
         Object.defineProperty(window, 'location', {
             value: {
                 href: '',
@@ -41,7 +35,6 @@ describe('API Client Interceptor', () => {
             writable: true,
         });
 
-        // Setup the interceptor
         setupErrorInterceptor(vi.fn());
     });
 
@@ -50,7 +43,6 @@ describe('API Client Interceptor', () => {
     });
 
     it('should refresh token and retry the request on 401 error', async () => {
-        // Arrange
         const originalAccessToken = 'expired-token';
         const originalRefreshToken = 'valid-refresh-token';
         const newAccessToken = 'new-access-token';
@@ -58,10 +50,8 @@ describe('API Client Interceptor', () => {
 
         useAuthStore.setState({ accessToken: originalAccessToken, refreshToken: originalRefreshToken });
 
-        // First call fails with 401
         fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }));
 
-        // Refresh token call is successful
         vi.mocked(authService.refreshToken).mockResolvedValueOnce({
             accessToken: newAccessToken,
             refreshToken: newRefreshToken,

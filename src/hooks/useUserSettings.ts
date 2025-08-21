@@ -65,7 +65,7 @@ export const useUserSettings = () => {
         }
         setLoadingNickname(true);
         try {
-            const { updated: updatedNickname } = await userService.updateNickname(nickname);
+            const updatedNickname = await userService.updateNickname(nickname);
             setStoreNickname(updatedNickname);
             showSnackbar('닉네임이 변경되었습니다.', 'success');
     } catch (_error) {
@@ -91,14 +91,23 @@ export const useUserSettings = () => {
     };
 
     const handleUpdatePassword = async () => {
+        if (!isPasswordVerified) {
+            showSnackbar('현재 비밀번호 확인을 먼저 진행하세요.', 'warning');
+            return;
+        }
         if (newPassword !== newPasswordConfirm || !newPassword) {
             showSnackbar('새 비밀번호가 일치하지 않습니다.', 'warning');
             return;
         }
         setLoadingPasswordUpdate(true);
         try {
-            await userService.updatePassword(newPassword);
-            showSnackbar('비밀번호가 변경되었습니다.', 'success');
+            const success = await userService.updatePassword(newPassword);
+            if (success) {
+                showSnackbar('비밀번호가 변경되었습니다.', 'success');
+            } else {
+                showSnackbar('비밀번호 변경에 실패했습니다.', 'error');
+                return;
+            }
             _setCurrentPassword('');
             setNewPassword('');
             setNewPasswordConfirm('');
@@ -128,14 +137,11 @@ export const useUserSettings = () => {
         setLoadingProfileImage(true);
         try {
             const imageUrl = await userService.updateProfileImage(image);
-            
-            // authStore의 user 정보 업데이트
             if (imageUrl) {
                 setStoreProfileImage(imageUrl);
             } else {
-                console.warn('응답 payload에서 이미지 URL을 찾을 수 없습니다:', imageUrl);
+                console.warn('프로필 이미지 URL이 비어 있습니다. 서버 응답 payload 확인 필요.');
             }
-            
             showSnackbar('프로필 이미지가 성공적으로 변경되었습니다.', 'success');
             return imageUrl;
         } catch (error) {

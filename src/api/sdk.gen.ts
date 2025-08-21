@@ -96,7 +96,7 @@ export const getApiAuthDuplicationEmail = <ThrowOnError extends boolean = false>
  */
 export const getApiAuthEmailVerification = <ThrowOnError extends boolean = false>(options: Options<GetApiAuthEmailVerificationData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).get<GetApiAuthEmailVerificationResponses, GetApiAuthEmailVerificationErrors, ThrowOnError>({
-        url: '/api/auth/email/verification',
+        url: '/api/auth/email',
         ...options
     });
 };
@@ -106,7 +106,7 @@ export const getApiAuthEmailVerification = <ThrowOnError extends boolean = false
  */
 export const postApiAuthEmailVerification = <ThrowOnError extends boolean = false>(options?: Options<PostApiAuthEmailVerificationData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).post<PostApiAuthEmailVerificationResponses, unknown, ThrowOnError>({
-        url: '/api/auth/email/verification',
+        url: '/api/auth/email',
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -433,7 +433,7 @@ export const patchApiUserPasswordInitialize = <ThrowOnError extends boolean = fa
                 type: 'http'
             }
         ],
-        url: '/api/user/password/initialize',
+        url: '/api/user/password',
         ...options
     });
 };

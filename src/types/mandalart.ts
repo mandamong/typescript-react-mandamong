@@ -18,3 +18,10 @@ export interface Page<T> {
   hasNext: boolean;
   content: T[];
 }
+
+export interface MandalartListItem {
+  id?: number;
+  name: string;
+  subject: string;
+  status: string;
+}

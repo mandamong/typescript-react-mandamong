@@ -79,7 +79,29 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
                 ) : (
                     <>
                         <AddPhotoAlternateIcon sx={{ fontSize: 40, mb: 1 }} />
-                        <Typography variant="body1" fontWeight="bold">프로필 이미지 (선택)</Typography>
+                        <Box sx={{ position: 'relative', display: 'inline-flex', mb: 0.5 }}>
+                            <Typography variant="body1" fontWeight="bold">프로필 이미지</Typography>
+                            <Box
+                                component="span"
+                                aria-label="선택 사항"
+                                sx={{
+                                    position: 'absolute',
+                                    top: -4,
+                                    right: -14,
+                                    color: 'grey.500',
+                                    fontSize: 16,
+                                    fontWeight: 400,
+                                    lineHeight: 1,
+                                    userSelect: 'none'
+                                }}
+                            >
+                                *
+                            </Box>
+                            {/* 시각적 숨김 텍스트 (스크린리더용) */}
+                            <Typography component="span" sx={{ position: 'absolute', width: 1, height: 1, p: 0, m: -1, overflow: 'hidden', clip: 'rect(0 0 0 0)', border: 0 }}>
+                                (선택)
+                            </Typography>
+                        </Box>
                         <Typography variant="caption">클릭 또는 드래그 & 드롭</Typography>
                     </>
                 )}

@@ -1,4 +1,5 @@
-import { Box, Button, CircularProgress, InputAdornment, TextField } from '@mui/material';
+import { Box, CircularProgress, InputAdornment, TextField, Fade } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import React from 'react';
 
 interface NicknameSectionProps {
@@ -6,22 +7,22 @@ interface NicknameSectionProps {
     setNickname: (nickname: string) => void;
     nicknameChecked: boolean;
     setNicknameChecked: (checked: boolean) => void;
-    loadingNicknameCheck: boolean;
+    autoCheckingNickname?: boolean;
+    nicknameCheckFailed?: boolean;
     nicknameError: boolean;
     setNicknameError: (error: boolean) => void;
-    handleCheckNickname: () => void;
 }
 
 const NicknameSection: React.FC<NicknameSectionProps> = ({
-                                                             nickname,
-                                                             setNickname,
-                                                             nicknameChecked,
-                                                             setNicknameChecked,
-                                                             loadingNicknameCheck,
-                                                             nicknameError,
-                                                             setNicknameError,
-                                                             handleCheckNickname,
-                                                         }) => {
+    nickname,
+    setNickname,
+    nicknameChecked,
+    setNicknameChecked,
+    autoCheckingNickname,
+    nicknameCheckFailed,
+    nicknameError,
+    setNicknameError,
+}) => {
     return (
         <Box sx={{width: '100%'}}>
             <TextField
@@ -37,17 +38,37 @@ const NicknameSection: React.FC<NicknameSectionProps> = ({
                     setNicknameError(false);
                     setNicknameChecked(false);
                 }}
-                error={nicknameError}
-                helperText={nicknameError ? '닉네임을 입력해주세요.' : ''}
+                error={!!nicknameCheckFailed}
+                helperText={nicknameError ? '닉네임을 입력해주세요.' : (nicknameCheckFailed ? '이미 사용 중인 닉네임입니다.' : '')}
+                FormHelperTextProps={{
+                    sx: {
+                        m: 0.5,
+                        fontSize: 12,
+                        color: nicknameCheckFailed ? 'error.main' : nicknameError ? 'warning.main' : 'text.secondary'
+                    }
+                }}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
-                            <Button
-                                onClick={handleCheckNickname}
-                                disabled={!nickname || loadingNicknameCheck || nicknameChecked}
-                            >
-                                {loadingNicknameCheck ? <CircularProgress size={24}/> : '중복확인'}
-                            </Button>
+                            {autoCheckingNickname && !nicknameChecked && (
+                                <CircularProgress size={20} />
+                            )}
+                            <Fade in={nicknameChecked && !autoCheckingNickname && !nicknameCheckFailed} timeout={250}>
+                                <CheckCircleIcon
+                                    color="success"
+                                    fontSize="small"
+                                    sx={{
+                                        ml: 0.5,
+                                        '@keyframes popIn': {
+                                            '0%': { transform: 'scale(0.4)', opacity: 0 },
+                                            '70%': { transform: 'scale(1.05)', opacity: 1 },
+                                            '100%': { transform: 'scale(1)', opacity: 1 }
+                                        },
+                                        animation: 'popIn 300ms ease'
+                                    }}
+                                    aria-label="사용 가능한 닉네임"
+                                />
+                            </Fade>
                         </InputAdornment>
                     ),
                 }}
