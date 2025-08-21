@@ -20,7 +20,6 @@ class UserService {
   }
 
   async resetPassword(email: string): Promise<{ email: string }> {
-  // 백엔드가 { payload: { email, password } } 또는 { payload: { email } } 혹은 { payload: { password } } 를 반환한다고 가정
   const { data } = await axiosInstance.patch<{ payload: any }>('/user/password', { email });
   return data.payload;
   }

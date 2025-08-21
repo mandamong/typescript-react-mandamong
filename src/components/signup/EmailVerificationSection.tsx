@@ -1,5 +1,5 @@
-import { Box, CircularProgress, Fade, InputAdornment, Stack, TextField, Typography, Button } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { Box, Button, CircularProgress, Fade, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import React from 'react';
 
 interface EmailVerificationSectionProps {
@@ -13,14 +13,12 @@ interface EmailVerificationSectionProps {
     setVerificationCode: (code: string) => void;
     emailVerified: boolean;
     setEmailVerified: (verified: boolean) => void;
-    // loadingEmailCheck 제거 (자동 검사)
     loadingRequestVerification: boolean;
     loadingVerifyCode: boolean;
     emailError: boolean;
     setEmailError: (error: boolean) => void;
     isCodeSent: boolean;
     resendCooldown: number;
-    // 수동 중복확인 제거 (자동 검사 전용)
     handleRequestVerification: () => void;
     handleVerifyCode: () => void;
 }

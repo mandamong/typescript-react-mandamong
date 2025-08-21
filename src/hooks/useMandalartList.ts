@@ -1,28 +1,30 @@
+import { MANDALART_LIST_PAGE_SIZE } from '@/constants/pagination';
 import { useSnackbar } from '@/hooks/useSnackbar';
 import { mandalartService } from '@/services/MandalartService';
 import useAuthStore from '@/store/authStore';
 import type { MandalartListItem } from '@/types/mandalart';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const useMandalartList = () => {
     const [mandalarts, setMandalarts] = useState<MandalartListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
-    const [page, setPage] = useState(0);
+    const pageRef = useRef(1);
+    const loadingMoreRef = useRef(false);
     const [hasNext, setHasNext] = useState(false);
     const { showSnackbar } = useSnackbar();
-    const { isAuthenticated } = useAuthStore(); // isAuthenticated 상태 가져오기
+    const { isAuthenticated } = useAuthStore();
 
     useEffect(() => {
         const fetchMandalarts = async () => {
             setLoading(true);
             try {
-                const response = await mandalartService.getMandalarts(String(0), String(20));
+                const response = await mandalartService.getMandalarts(String(1), String(MANDALART_LIST_PAGE_SIZE));
                 if (response && response.content) {
                     // 새 응답 형태: { name, subject, status, id? }
                     setMandalarts(response.content as unknown as MandalartListItem[]);
                     setHasNext(!!response.hasNext);
-                    setPage(0);
+                    pageRef.current = 1;
                 } else {
                     setMandalarts([]);
                 }
@@ -42,7 +44,7 @@ export const useMandalartList = () => {
             setLoading(false);
             setMandalarts([]);
             setHasNext(false);
-            setPage(0);
+            pageRef.current = 1;
         }
     }, [isAuthenticated, showSnackbar]);
 
@@ -52,24 +54,30 @@ export const useMandalartList = () => {
         loadingMore,
         hasNext,
         loadMore: async () => {
-            if (loadingMore || !hasNext) return;
+            if (loadingMoreRef.current || loadingMore || !hasNext) return;
+            loadingMoreRef.current = true;
             setLoadingMore(true);
             try {
-                const nextPage = page + 1;
-                const response = await mandalartService.getMandalarts(String(nextPage), String(20));
+                const nextPage = pageRef.current + 1;
+                const response = await mandalartService.getMandalarts(String(nextPage), String(MANDALART_LIST_PAGE_SIZE));
                 if (response && response.content) {
-                    setMandalarts((prev) => [
-                        ...prev,
-                        ...(response.content as unknown as MandalartListItem[]),
-                    ]);
+                    setMandalarts((prev) => {
+                        const existingIds = new Set(prev.map(p => (p as any).id));
+                        const incoming = (response.content as unknown as MandalartListItem[]).filter(i => {
+                            const id = (i as any).id;
+                            return id == null || !existingIds.has(id);
+                        });
+                        return [...prev, ...incoming];
+                    });
                     setHasNext(!!response.hasNext);
-                    setPage(nextPage);
+                    pageRef.current = nextPage;
                 }
             } catch (error) {
                 console.error('Error loading more mandalarts:', error);
                 showSnackbar('더 불러오는 데 실패했습니다.', 'error');
             } finally {
                 setLoadingMore(false);
+                loadingMoreRef.current = false;
             }
         },
     };

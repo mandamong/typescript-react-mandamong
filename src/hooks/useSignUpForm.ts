@@ -20,10 +20,8 @@ export const useSignUpForm = () => {
     const [image, setImage] = useState<File | null>(null);
     const [language, setLanguage] = useState('ko_KR');
 
-    // 수동 중복확인 로딩 제거 (자동 검사 전환)
     const [loadingRequestVerification, setLoadingRequestVerification] = useState(false);
     const [loadingVerifyCode, setLoadingVerifyCode] = useState(false);
-    // 수동 닉네임 중복확인 로딩 제거 (자동 검사 전환)
     const [loadingSignUp, setLoadingSignUp] = useState(false);
     const [autoCheckingEmail, setAutoCheckingEmail] = useState(false);
     const [autoCheckingNickname, setAutoCheckingNickname] = useState(false);

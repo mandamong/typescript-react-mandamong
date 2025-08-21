@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        // target: 'https://mandamong-dev.sailin.cloud',
+        //target: 'https://mandamong-dev.sailin.cloud',
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
