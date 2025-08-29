@@ -1,4 +1,4 @@
-import type {Client, Config, ResolvedRequestOptions} from './types';
+import type { Client, Config, ResolvedRequestOptions } from './types';
 import {
     buildUrl,
     createConfig,
@@ -150,7 +150,6 @@ export const createClient = (config: Config = {}): Client => {
         try {
             jsonError = JSON.parse(textError);
         } catch {
-            // Intentionally left empty
         }
 
         const error = jsonError ?? textError;

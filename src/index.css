@@ -24,6 +24,7 @@
 /* Global styles: subtle improvements complementing MUI theme */
 :root {
 	--radius-xl: 16px;
+	--gradient-primary: linear-gradient(135deg,#2563ff,#4f46e5 55%,#6366f1);
 }
 
 html, body, #root {
@@ -34,6 +35,298 @@ html, body, #root {
 html {
 	scroll-behavior: smooth;
 }
+
+/* Performance mode overrides */
+.perf-mode body, .perf-mode {
+	--disable-transitions: none;
+}
+.perf-mode * { transition: none !important; animation: none !important; }
+.perf-mode [data-parallax] { transform: none !important; opacity: 1 !important; }
+.perf-mode .MuiPaper-root { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.perf-mode .mandalart-line { filter: none !important; mix-blend-mode: normal !important; }
+.perf-mode .MuiButton-root { box-shadow: none !important; }
+.perf-mode .MuiSkeleton-root::after { display: none !important; }
+
+/* --- Reveal Animation Utility ------------------------------------------------ */
+[data-reveal] { opacity: 0; transform: translateY(18px); transition: opacity .9s var(--easing-standard), transform .9s var(--easing-emphasized); }
+[data-reveal].reveal-in { opacity: 1; transform: translateY(0); }
+[data-reveal="fade-up-delayed"] { transition-delay: .15s; }
+[data-reveal="fade-up-late"] { transition-delay: .3s; }
+
+@keyframes scroll-indicator { 0%, 100% { transform: translate(-50%,0); opacity:1; } 60% { transform: translate(-50%,8px); opacity:0; } }
+
+/* --- Custom Ripple (MUI) ----------------------------------------------------- */
+.MuiTouchRipple-root span { background: radial-gradient(circle at center, var(--status-in-progress), transparent 70%) !important; opacity:0.28; }
+
+/* --- Skeleton Shimmer -------------------------------------------------------- */
+.MuiSkeleton-root { position:relative; overflow:hidden; }
+.MuiSkeleton-root::after { content:""; position:absolute; inset:0; background:linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.55) 45%, transparent 80%); transform:translateX(-100%); animation:skeleton-shimmer 2.2s infinite; mix-blend-mode:overlay; }
+@keyframes skeleton-shimmer { to { transform:translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .MuiSkeleton-root::after { animation:none; } }
+
+/* --- Utility: text gradient ----------------------------------------------- */
+.u-text-gradient { background:var(--gradient-primary); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* --- Utility: glass ring focus --------------------------------------------- */
+.u-glass-focus:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(255,255,255,0.55), 0 0 0 6px rgba(99,102,241,0.4); }
+
+/* --- Reduced motion fallback for parallax elements ------------------------- */
+@media (prefers-reduced-motion: reduce) { [data-parallax] { transform:none !important; opacity:1 !important; } }
+
+/* --- Mandalart Grid Mobile Responsiveness -------------------------------- */
+/* 모든 만다르트 셀을 강제로 사각형으로 만들기 */
+.mandalart-grid-container .mandalart-cell,
+.mandalart-grid-container .mandalart-cell *,
+.mandalart-grid-container .MuiPaper-root {
+    border-radius: 0 !important; /* 완전히 사각형으로 설정 */
+    overflow: visible !important;
+}
+
+/* 만다르트 셀 내부 텍스트가 모두 표시되도록 */
+.mandalart-cell .MuiTypography-root {
+    overflow: visible !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    line-height: 1.0 !important; /* 줄 간격 줄임 */
+    text-align: center !important; /* 중앙 정렬로 변경 */
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    /* 텍스트가 잘리지 않도록 추가 설정 */
+    word-wrap: break-word !important;
+    hyphens: auto !important;
+    overflow-wrap: break-word !important;
+    max-width: none !important;
+    max-height: none !important;
+    text-overflow: clip !important;
+    /* 텍스트 줄바꿈 최적화 */
+    white-space: pre-wrap !important;
+    word-spacing: normal !important;
+    letter-spacing: normal !important;
+}
+
+/* 완료된 셀의 다크모드 스타일 개선 */
+.mandalart-cell[data-status="DONE"] {
+    background: linear-gradient(145deg, rgba(76, 175, 80, 0.08), rgba(76, 175, 80, 0.15)) !important;
+    border: 1px solid rgba(76, 175, 80, 0.3) !important;
+    box-shadow: inset 0 0 0 1px rgba(76, 175, 80, 0.2), 0 1px 4px rgba(76, 175, 80, 0.08) !important;
+}
+
+/* 다크모드에서 완료된 셀의 텍스트 색상 */
+[data-theme="dark"] .mandalart-cell[data-status="DONE"] .MuiTypography-root {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 라이트모드에서 완료된 셀의 텍스트 색상 */
+[data-theme="light"] .mandalart-cell[data-status="DONE"] .MuiTypography-root {
+    color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 셀 내부 텍스트가 모두 표시되도록 강제 설정 */
+.mandalart-cell .MuiTypography-root {
+    font-size: 0.6rem !important;
+    line-height: 1.0 !important;
+    padding: 2px !important;
+    margin: 0 !important;
+}
+
+/* 연관된 셀들에 대한 시각적 효과 */
+.mandalart-cell.related-cell {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transform: scale(1.02) !important;
+    filter: brightness(1.05) saturate(1.1) !important;
+    z-index: 5 !important;
+}
+
+.mandalart-cell.hovered-cell {
+    transform: scale(1.05) !important;
+    z-index: 10 !important;
+    filter: brightness(1.1) saturate(1.2) !important;
+}
+
+/* 호버 효과 개선 */
+.mandalart-cell:hover {
+    transform: scale(1.03) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 연관된 셀들 간의 연결선 효과 */
+.mandalart-grid-container .related-cells-group {
+    position: relative;
+}
+
+.mandalart-grid-container .related-cells-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.mandalart-grid-container .related-cells-group:hover::before {
+    opacity: 1;
+}
+
+/* --- Mandalart List Page Enhancements -------------------------------- */
+/* fadeIn 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 만다르트 카드 호버 효과 개선 */
+.mandalart-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.mandalart-card:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+}
+
+/* 만다르트 카드 텍스트 잘림 방지 */
+.mandalart-card .MuiTypography-root {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    line-height: 1.3 !important;
+}
+
+/* 카드 제목 텍스트 개선 */
+.mandalart-card .MuiTypography-h5 {
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* 카드 주제 텍스트 개선 */
+.mandalart-card .MuiTypography-body2 {
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+/* 진행률 바 애니메이션 */
+@keyframes shimmer {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 0%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* 상태 칩 호버 효과 */
+.status-chip:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+@media (max-width: 768px) {
+    /* 모바일에서 만다르트 그리드 셀 크기 보장 */
+    .mandalart-grid-container {
+        aspect-ratio: 1 / 1 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        padding: 0 !important;
+    }
+    
+    .mandalart-grid-container > div {
+        min-width: calc(20% - 2px) !important;
+        min-height: calc(20% - 2px) !important;
+        aspect-ratio: 1 / 1 !important;
+    }
+    
+    /* 모바일에서 셀 내부 콘텐츠 정렬 */
+    .mandalart-cell {
+        display: flex !important;
+        align-items: center !important; /* 중앙 정렬로 변경 */
+        justify-content: center !important; /* 중앙 정렬로 변경 */
+        text-align: center !important; /* 중앙 정렬로 변경 */
+        width: 100% !important;
+        height: 100% !important;
+        overflow: visible !important; /* 텍스트가 잘리지 않도록 */
+        border-radius: 0 !important; /* 완전히 사각형으로 설정 */
+        /* 텍스트가 잘리지 않도록 추가 설정 */
+        word-wrap: break-word !important;
+        white-space: normal !important;
+        min-height: auto !important;
+        max-height: none !important;
+    }
+    
+    /* 모바일에서 그리드 간격 조정 */
+    .mandalart-grid-container .MuiBox-root {
+        gap: 2px !important;
+    }
+    
+    /* 모바일에서 셀 내부 텍스트가 모두 표시되도록 */
+    .mandalart-cell .MuiTypography-root {
+        overflow: visible !important;
+        word-break: break-word !important;
+        white-space: pre-wrap !important; /* pre-wrap으로 변경 */
+        line-height: 1.0 !important; /* 줄 간격 줄임 */
+        font-size: 0.55rem !important; /* 폰트 크기 조정 */
+        text-align: center !important; /* 중앙 정렬로 변경 */
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        /* 텍스트가 잘리지 않도록 추가 설정 */
+        word-wrap: break-word !important;
+        hyphens: auto !important;
+        overflow-wrap: break-word !important;
+        max-width: none !important;
+        max-height: none !important;
+        text-overflow: clip !important;
+        /* 텍스트 줄바꿈 최적화 */
+        word-spacing: normal !important;
+        letter-spacing: normal !important;
+        /* 패딩 최소화 */
+        padding: 1px !important;
+        margin: 0 !important;
+    }
+    
+    /* 모든 셀을 강제로 사각형으로 만들기 */
+    .mandalart-cell .MuiPaper-root {
+        border-radius: 0 !important;
+        overflow: visible !important;
+    }
+    
+    /* 빈 셀도 사각형으로 만들기 */
+    .mandalart-cell .MuiPaper-root[style*="border-radius: 50%"] {
+        border-radius: 0 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-reveal] { opacity:1 !important; transform:none !important; transition:none !important; }
+}
+
+/* --- Noise / Overlay Helpers ------------------------------------------------- */
+.ui-noise::before { content:""; position:fixed; inset:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E"); mix-blend-mode:overlay; }
+
+/* --- Feature card icon micro interaction (pulse) ----------------------------- */
+.feature-icon-pulse { position:relative; }
+.feature-icon-pulse::after { content:""; position:absolute; inset:0; border-radius:8px; background:radial-gradient(circle at center, rgba(255,255,255,0.55), transparent 70%); opacity:0; transform:scale(.4); transition:opacity .8s, transform .8s; }
+.feature-card:hover .feature-icon-pulse::after { opacity:.5; transform:scale(1); }
+
+/* --- Parallax layer utility -------------------------------------------------- */
+[data-parallax] { will-change: transform; }
+
+/* --- Dark mode transition ---------------------------------------------------- */
+body { transition: background .8s ease, color .6s ease; }
+@media (prefers-reduced-motion: reduce) { body { transition:none !important; } }
+
+/* Focus ring unify */
+*:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 /* Minimal, subtle scrollbars (WebKit) */
 *::-webkit-scrollbar {

@@ -19,8 +19,6 @@ export const setupAxiosInterceptors = () => {
                 originalRequest._retry = true;
 
                 const {refreshToken, logout} = useAuthStore.getState();
-
-                // 로그인 상태(리프레시 토큰 보유)에서만 토큰 갱신/리다이렉트 처리
                 if (refreshToken) {
                     try {
                         const newTokens = await authService.refreshToken(refreshToken);
@@ -44,15 +42,10 @@ export const setupAxiosInterceptors = () => {
                         return Promise.reject(refreshError);
                     }
                 }
-
-                // 비로그인 상태(리프레시 토큰 없음)의 401은 리다이렉트하지 않고 호출측에서 처리하도록 전달
                 return Promise.reject(error);
             }
-
-            // Retry on network errors/timeouts or 429/5xx, only for idempotent methods
             const status = error.response?.status;
             const method = (originalRequest?.method || 'get').toUpperCase();
-            // Allow safe retries for specific POST endpoints (AI suggestion endpoints are idempotent server-side)
             const url = originalRequest?.url || '';
             const isSafePost = method === 'POST' && (/\/gemini\/subject$/.test(url) || /\/gemini\/objective$/.test(url));
             const shouldRetry = (!status || status === 429 || (status >= 500 && status < 600)) && ((method === 'GET' || method === 'HEAD') || isSafePost);
@@ -76,9 +69,7 @@ export const setupAxiosInterceptors = () => {
  * On failure: logout and redirect to /login.
  */
 export const setupErrorInterceptor = (_showSnackbar?: (msg: string, variant?: 'error' | 'success' | 'info' | 'warning') => void) => {
-    // Avoid duplicate registrations in watch/test mode
     client.interceptors.response.use(async (response, request, options) => {
-        // Automatic retry for network/429/5xx on idempotent methods + whitelisted POST endpoints
         const method = (request.method || 'GET').toUpperCase();
         const url = request.url || '';
         const isSafePost = method === 'POST' && (/\/gemini\/subject$/.test(url) || /\/gemini\/objective$/.test(url));
@@ -97,13 +88,10 @@ export const setupErrorInterceptor = (_showSnackbar?: (msg: string, variant?: 'e
         }
 
         if (response.status !== 401) return response;
-
-        // Prevent infinite retry loops
         if (request.headers.get('x-retried') === '1') return response;
 
         const { refreshToken, setToken, setRefreshToken, logout } = useAuthStore.getState();
         if (!refreshToken) {
-            // 비로그인 상태의 401은 리다이렉트하지 않고 그대로 반환
             return response;
         }
 
@@ -126,10 +114,7 @@ export const setupErrorInterceptor = (_showSnackbar?: (msg: string, variant?: 'e
                 return retriedResponse;
             }
         } catch (_e) {
-            // fallthrough to logout
         }
-
-    // On failure with logged-in state, logout and redirect
     logout();
     if (typeof window !== 'undefined') window.location.href = '/login';
     return response;

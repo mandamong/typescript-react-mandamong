@@ -1,3 +1,5 @@
+import AuthFrame from '@/components/layout/AuthFrame';
+import Section from '@/components/Section';
 import EmailVerificationSection from '@/components/signup/EmailVerificationSection';
 import LanguageSelect from '@/components/signup/LanguageSelect';
 import NicknameSection from '@/components/signup/NicknameSection';
@@ -5,17 +7,7 @@ import PasswordSection from '@/components/signup/PasswordSection';
 import ProfileImageUpload from '@/components/signup/ProfileImageUpload';
 import { useSignUpForm } from '@/hooks/useSignUpForm';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import {
-  Avatar,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Link,
-  Paper,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Container, Link, Stack } from '@mui/material';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -66,80 +58,74 @@ const SignUpPage: React.FC = () => {
   } = useSignUpForm();
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box sx={{ mt: { xs: 4, md: 8 }, mb: { xs: 4, md: 8 } }}>
-        <Paper elevation={0} sx={{ p: { xs: 3, md: 5 } }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-            <Avatar sx={{ bgcolor: 'primary.main', mb: 1 }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5" sx={{ fontWeight: 800 }}>
-              회원가입
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              계정을 생성하고 만다르트를 만들어보세요.
-            </Typography>
-          </Box>
+    <Container component="main" maxWidth="sm" sx={{ px:{ xs:2.5, sm:0 } }}>
+      <AuthFrame icon={<LockOutlinedIcon />} title="회원가입" subtitle="계정을 생성하고 만다르트를 만들어보세요.">
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <Stack spacing={2.5}>
-            <EmailVerificationSection
-              emailCheckFailed={emailCheckFailed}
-              email={email}
-              setEmail={setEmail}
-              emailChecked={emailChecked}
-              setEmailChecked={setEmailChecked}
-              autoCheckingEmail={autoCheckingEmail}
-              verificationCode={verificationCode}
-              setVerificationCode={setVerificationCode}
-              emailVerified={emailVerified}
-              setEmailVerified={setEmailVerified}
-              loadingRequestVerification={loadingRequestVerification}
-              loadingVerifyCode={loadingVerifyCode}
-              emailError={emailError}
-              setEmailError={setEmailError}
-              handleRequestVerification={handleRequestVerification}
-              handleVerifyCode={handleVerifyCode}
-              isCodeSent={isCodeSent}
-              resendCooldown={resendCooldown}
-            />
-
-            <NicknameSection
-              nickname={nickname}
-              setNickname={setNickname}
-              nicknameChecked={nicknameChecked}
-              setNicknameChecked={setNicknameChecked}
-              autoCheckingNickname={autoCheckingNickname}
-              nicknameError={nicknameError}
-              setNicknameError={setNicknameError}
-              nicknameCheckFailed={nicknameCheckFailed}
-            />
-
-            <PasswordSection
-              password={password}
-              setPassword={setPassword}
-              passwordConfirm={passwordConfirm}
-              setPasswordConfirm={setPasswordConfirm}
-              passwordError={passwordError}
-              setPasswordError={setPasswordError}
-              passwordConfirmError={passwordConfirmError}
-              setPasswordConfirmError={setPasswordConfirmError}
-            />
-
-            <ProfileImageUpload
-              image={image}
-              setImage={setImage}
-              imageError={imageError}
-              setImageError={setImageError}
-              loadingSignUp={loadingSignUp}
-            />
-
-            <LanguageSelect language={language} setLanguage={setLanguage} />
+            <Stack spacing={{ xs: 3.25, md: 4 }}>
+              <Section title="이메일 인증" subtitle="이메일 중복 확인 및 코드 인증" bordered dense>
+                <EmailVerificationSection
+                  emailCheckFailed={emailCheckFailed}
+                  email={email}
+                  setEmail={setEmail}
+                  emailChecked={emailChecked}
+                  setEmailChecked={setEmailChecked}
+                  autoCheckingEmail={autoCheckingEmail}
+                  verificationCode={verificationCode}
+                  setVerificationCode={setVerificationCode}
+                  emailVerified={emailVerified}
+                  setEmailVerified={setEmailVerified}
+                  loadingRequestVerification={loadingRequestVerification}
+                  loadingVerifyCode={loadingVerifyCode}
+                  emailError={emailError}
+                  setEmailError={setEmailError}
+                  handleRequestVerification={handleRequestVerification}
+                  handleVerifyCode={handleVerifyCode}
+                  isCodeSent={isCodeSent}
+                  resendCooldown={resendCooldown}
+                />
+              </Section>
+              <Section title="닉네임" subtitle="표시될 공개 이름" bordered dense>
+                <NicknameSection
+                  nickname={nickname}
+                  setNickname={setNickname}
+                  nicknameChecked={nicknameChecked}
+                  setNicknameChecked={setNicknameChecked}
+                  autoCheckingNickname={autoCheckingNickname}
+                  nicknameError={nicknameError}
+                  setNicknameError={setNicknameError}
+                  nicknameCheckFailed={nicknameCheckFailed}
+                />
+              </Section>
+              <Section title="비밀번호" subtitle="안전한 비밀번호를 설정하세요" bordered dense>
+                <PasswordSection
+                  password={password}
+                  setPassword={setPassword}
+                  passwordConfirm={passwordConfirm}
+                  setPasswordConfirm={setPasswordConfirm}
+                  passwordError={passwordError}
+                  setPasswordError={setPasswordError}
+                  passwordConfirmError={passwordConfirmError}
+                  setPasswordConfirmError={setPasswordConfirmError}
+                />
+              </Section>
+              <Section title="프로필 이미지" subtitle="선택 사항" bordered dense>
+                <ProfileImageUpload
+                  image={image}
+                  setImage={setImage}
+                  imageError={imageError}
+                  setImageError={setImageError}
+                  loadingSignUp={loadingSignUp}
+                />
+              </Section>
+              <Section title="사용 언어" bordered dense>
+                <LanguageSelect language={language} setLanguage={setLanguage} />
+              </Section>
             </Stack>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 1.5 }}
+              sx={{ mt: 3, mb: 1.5, py: { xs: 1.1, md: 1.2 } }}
               disabled={loadingSignUp}
             >
               {loadingSignUp ? <CircularProgress size={24} /> : '회원가입'}
@@ -149,9 +135,8 @@ const SignUpPage: React.FC = () => {
                 이미 계정이 있으신가요? 로그인
               </Link>
             </Box>
-          </Box>
-        </Paper>
       </Box>
+    </AuthFrame>
     </Container>
   );
 };

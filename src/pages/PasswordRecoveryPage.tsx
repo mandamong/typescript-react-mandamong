@@ -1,25 +1,24 @@
+import AuthFrame from '@/components/layout/AuthFrame';
 import { useSnackbar } from "@/hooks/useSnackbar";
 import { authService } from "@/services/AuthService";
 import { userService } from "@/services/UserService";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import {
-  Avatar,
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-  Link,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
+    Box,
+    Button,
+    CircularProgress,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
+    Link,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
@@ -127,42 +126,7 @@ const PasswordRecoveryPage: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="sm" sx={{ px: { xs: 2.2, md: 2 } }}>
-      <Box sx={{
-        minHeight: { xs: 'calc(100dvh - 40px)', md: '100dvh' },
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: { xs: 'flex-start', md: 'center' },
-        py: { xs: 2.5, md: 4 }
-      }}>
-        <Paper elevation={0} sx={{
-          p: { xs: 3, md: 4 },
-          borderRadius: 4,
-          border: '1px solid',
-          borderColor: 'divider',
-          maxWidth: 460,
-          width: '100%',
-          mx: 'auto',
-          backdropFilter: { md: 'saturate(1.2) blur(3px)' },
-          backgroundColor: { md: 'background.paper' }
-        }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              mb: { xs: 2, md: 3 },
-            }}
-          >
-            <Avatar sx={{ bgcolor: "primary.main", mb: 1, width: { xs: 56, md: 60 }, height: { xs: 56, md: 60 } }}>
-              <LockResetIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5" sx={{ fontWeight: 800, fontSize: { xs: '1.32rem', md: '1.45rem' }, letterSpacing: '.2px' }}>
-              비밀번호 찾기
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, textAlign: 'center', lineHeight: 1.42 }}>
-              이메일 인증 후 임시 비밀번호를 발급받을 수 있습니다.
-            </Typography>
-          </Box>
+      <AuthFrame icon={<LockResetIcon />} title="비밀번호 찾기" subtitle="이메일 인증 후 임시 비밀번호를 발급받을 수 있습니다.">
           <Stack spacing={{ xs: 2.2, md: 2.8 }}>
             <TextField
               fullWidth
@@ -300,9 +264,8 @@ const PasswordRecoveryPage: React.FC = () => {
                 로그인으로 돌아가기
               </Link>
             </Box>
-          </Stack>
-        </Paper>
-      </Box>
+      </Stack>
+    </AuthFrame>
 
   <Dialog open={openDialog} fullWidth maxWidth="xs" onClose={() => setOpenDialog(false)}>
   <DialogTitle>임시 비밀번호</DialogTitle>

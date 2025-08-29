@@ -57,57 +57,31 @@ describe('API Client Interceptor', () => {
             refreshToken: newRefreshToken,
             id: 1,
         });
-
-        // Second call (retry) is successful
         fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ data: 'success' }), { status: 200 }));
-
-        // Act
         await client.get({ url: '/api/test' });
-
-        // Assert
-        // Check that refreshToken was called
         expect(authService.refreshToken).toHaveBeenCalledWith(originalRefreshToken);
-
-        // Check that the request was retried with the new token
         const secondCall = fetchMock.mock.calls[1][0] as Request;
         expect(secondCall.headers.get('Authorization')).toBe(`Bearer ${newAccessToken}`);
-
-        // Check that the tokens are updated in the store
         const state = useAuthStore.getState();
         expect(state.accessToken).toBe(newAccessToken);
         expect(state.refreshToken).toBe(newRefreshToken);
     });
 
     it('should logout the user and redirect to /login if the refresh token request fails with 401', async () => {
-        // Arrange
         const originalAccessToken = 'expired-token';
         const originalRefreshToken = 'invalid-refresh-token';
 
         useAuthStore.setState({ accessToken: originalAccessToken, refreshToken: originalRefreshToken });
-
-        // First call fails with 401
         fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }));
-
-        // Refresh token call also fails with 401
         vi.mocked(authService.refreshToken).mockRejectedValueOnce(new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 }));
-
-        // Act
         try {
             await client.get({ url: '/api/test' });
         } catch (_error) {
-            // ignore
         }
-
-        // Assert
-        // Check that refreshToken was called
         expect(authService.refreshToken).toHaveBeenCalledWith(originalRefreshToken);
-
-        // Check that the user is logged out
         const state = useAuthStore.getState();
         expect(state.accessToken).toBeNull();
         expect(state.refreshToken).toBeNull();
-
-        // Check that the user is redirected to /login
         expect(window.location.href).toBe('/login');
     });
 });

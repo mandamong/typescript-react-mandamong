@@ -28,9 +28,9 @@ export const useSignUpForm = () => {
     const lastEmailCheckStatus = useRef<'success' | 'error' | undefined>(undefined);
     const lastNicknameCheckStatus = useRef<'success' | 'error' | undefined>(undefined);
 
-    const [emailError, setEmailError] = useState(false); // 형식 오류
-    const [emailCheckFailed] = useState(false); // (자동 검사에서 snackbar만 사용, 필드 에러는 바로 표현)
-    const [nicknameError, setNicknameError] = useState(false); // 형식 오류
+    const [emailError, setEmailError] = useState(false); 
+    const [emailCheckFailed] = useState(false); 
+    const [nicknameError, setNicknameError] = useState(false); 
     const [nicknameCheckFailed] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
@@ -47,10 +47,8 @@ export const useSignUpForm = () => {
             }
         };
     }, []);
-
-    // 디바운스 자동 이메일 중복 검사
     useEffect(() => {
-        if (!email || (emailChecked && emailVerified)) return; // 이미 인증 완료되면 재요청 안함
+        if (!email || (emailChecked && emailVerified)) return; 
         if (!validateEmail(email)) {
             setEmailChecked(false);
             return;
@@ -75,10 +73,7 @@ export const useSignUpForm = () => {
             }
         }, 600);
         return () => clearTimeout(debounce);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [email]);
-
-    // 디바운스 자동 닉네임 중복 검사
     useEffect(() => {
         if (!nickname) return;
         if (!validateNickname(nickname)) {
@@ -105,7 +100,6 @@ export const useSignUpForm = () => {
             }
         }, 600);
         return () => clearTimeout(debounce);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nickname]);
 
     const validateEmail = (email: string) => {
@@ -128,9 +122,9 @@ export const useSignUpForm = () => {
     };
 
     const validateImage = useCallback((image: File | null) => {
-        if (!image) return true; // 선택 안해도 통과
+        if (!image) return true; 
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 2 * 1024 * 1024; 
         if (!allowedTypes.includes(image.type)) {
             showSnackbar('지원하지 않는 이미지 형식입니다. (JPG, PNG, GIF)', 'warning');
             return false;
@@ -141,8 +135,6 @@ export const useSignUpForm = () => {
         }
         return true;
     }, [showSnackbar]);
-
-    // 수동 이메일 중복확인 핸들러 제거 (자동 검사)
 
     const handleRequestVerification = useCallback(async () => {
         if (!emailChecked) {
@@ -192,8 +184,6 @@ export const useSignUpForm = () => {
             setLoadingVerifyCode(false);
         }
     }, [email, verificationCode, showSnackbar]);
-
-    // 수동 닉네임 중복확인 핸들러 제거 (자동 검사)
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();

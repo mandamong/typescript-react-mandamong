@@ -1,45 +1,37 @@
-import { useThemeMode } from '@/contexts/useThemeMode';
+import BrandLogo from '@/components/BrandLogo';
 import useAuthStore from '@/store/authStore';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import { AppBar, Avatar, Box, Button, Container, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, Avatar, Box, Button, Container, Toolbar, Typography, useScrollTrigger } from '@mui/material';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
     const { isAuthenticated, logout, user } = useAuthStore();
     const navigate = useNavigate();
-    const { mode, toggle } = useThemeMode();
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
+    const scrolled = useScrollTrigger({ disableHysteresis: true, threshold: 4 });
 
     return (
-        <AppBar position="sticky" color="default">
+        <AppBar
+            position="sticky"
+            color="default"
+            sx={(theme) => ({
+                boxShadow: scrolled ? 'var(--shadow-md)' : 'var(--shadow-sm)',
+                borderBottom: scrolled ? `1px solid ${theme.palette.divider}` : '1px solid transparent',
+                transition: 'box-shadow .25s, border-color .25s, backdrop-filter .25s',
+                backdropFilter: scrolled ? 'saturate(1.8) blur(10px)' : 'saturate(1.4) blur(6px)',
+                WebkitBackdropFilter: scrolled ? 'saturate(1.8) blur(10px)' : 'saturate(1.4) blur(6px)',
+            })}
+        >
             <Container maxWidth="lg" disableGutters>
-                <Toolbar disableGutters sx={{ minHeight: { xs: 56, sm: 64 }, px: { xs: 1.5, sm: 2 } }}>
-                    <Typography
-                        variant="h6"
-                        component="div"
-                        sx={{
-                            flexGrow: 1,
-                            fontWeight: 800,
-                            fontSize: { xs: 'clamp(1.05rem, 0.95rem + 1vw, 1.25rem)', sm: '1.25rem' },
-                            letterSpacing: '-0.01em',
-                        }}
-                    >
-                        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            만다몽
-                        </Link>
-                    </Typography>
+                <Toolbar disableGutters sx={{ minHeight: { xs: 54, sm: 64 }, px: { xs: 1.1, sm: 2 } }}>
+                    <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+                                                <BrandLogo titleImage="/mandamong-title.svg" titleImageHeight={14} />
+                    </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
-                        <Tooltip title={mode === 'dark' ? '라이트 모드' : '다크 모드'}>
-                            <IconButton color="inherit" onClick={toggle} aria-label="toggle dark mode">
-                                {mode === 'dark' ? <LightModeOutlinedIcon /> : <DarkModeOutlinedIcon />}
-                            </IconButton>
-                        </Tooltip>
                         {isAuthenticated && user ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                                 <Button
@@ -47,7 +39,7 @@ const Header: React.FC = () => {
                                     variant="text"
                                     component={Link}
                                     to="/mandalart"
-                                    sx={{ fontSize: { xs: '0.9rem', sm: '0.95rem' }, fontWeight: 600, minWidth: 'auto', px: { xs: 0.5, sm: 1 } }}
+                                    sx={{ fontSize: { xs: '.78rem', sm: '.95rem' }, fontWeight: 600, minWidth: 'auto', px: { xs: 0.75, sm: 1 } }}
                                 >
                                     만다르트
                                 </Button>
@@ -58,29 +50,29 @@ const Header: React.FC = () => {
                                     sx={{
                                         textTransform: 'none',
                                         borderRadius: '999px',
-                                        pl: { xs: 0.75, sm: 1 },
-                                        pr: { xs: 0.75, sm: 1 },
+                                        pl: { xs: 0.6, sm: 1 },
+                                        pr: { xs: 0.6, sm: 1 },
                                     }}
                                 >
-                                    <Avatar src={user.image} alt={user.nickname} sx={{ width: { xs: 28, sm: 32 }, height: { xs: 28, sm: 32 }, mr: { xs: 0.75, sm: 1 } }} />
-                                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: { xs: '0.9rem', sm: '0.95rem' } }}>
+                                    <Avatar src={user.image} alt={user.nickname} sx={{ width: { xs: 26, sm: 32 }, height: { xs: 26, sm: 32 }, mr: { xs: 0.6, sm: 1 } }} />
+                                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: { xs: '.78rem', sm: '.95rem' } }}>
                                         {user.nickname}
                                     </Typography>
                                 </Button>
                                 <Button
                                     color="inherit"
                                     onClick={handleLogout}
-                                    sx={{ ml: { xs: 0.5, sm: 1 }, fontSize: { xs: '0.9rem', sm: '0.95rem' }, fontWeight: 600 }}
+                                    sx={{ ml: { xs: 0.4, sm: 1 }, fontSize: { xs: '.78rem', sm: '.95rem' }, fontWeight: 600, px: { xs: 0.75, sm: 1.5 }, py: { xs: 0.75, sm: 1 } }}
                                 >
                                     로그아웃
                                 </Button>
                             </Box>
                         ) : (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
-                                <Button color="inherit" component={Link} to="/login" sx={{ fontSize: { xs: '0.9rem', sm: '0.95rem' }, fontWeight: 600 }}>
+                                <Button color="inherit" component={Link} to="/login" sx={{ fontSize: { xs: '.78rem', sm: '.95rem' }, fontWeight: 600, px: { xs: 0.75, sm: 1.5 }, py: { xs: 0.75, sm: 1 } }}>
                                     로그인
                                 </Button>
-                                <Button variant="contained" color="primary" component={Link} to="/signup" sx={{ fontSize: { xs: '0.9rem', sm: '0.95rem' }, fontWeight: 700 }}>
+                                <Button variant="contained" color="primary" component={Link} to="/signup" sx={{ fontSize: { xs: '.78rem', sm: '.95rem' }, fontWeight: 700, px: { xs: 1.25, sm: 2 } }}>
                                     회원가입
                                 </Button>
                             </Box>

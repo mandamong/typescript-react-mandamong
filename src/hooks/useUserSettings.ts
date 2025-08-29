@@ -133,7 +133,7 @@ export const useUserSettings = () => {
         }
     };
 
-    const handleUpdateProfileImage = async (image: File) => {
+    const handleUpdateProfileImage = async (image: File): Promise<void> => {
         setLoadingProfileImage(true);
         try {
             const imageUrl = await userService.updateProfileImage(image);
@@ -143,7 +143,6 @@ export const useUserSettings = () => {
                 console.warn('프로필 이미지 URL이 비어 있습니다. 서버 응답 payload 확인 필요.');
             }
             showSnackbar('프로필 이미지가 성공적으로 변경되었습니다.', 'success');
-            return imageUrl;
         } catch (error) {
             console.error('프로필 이미지 업데이트 실패:', error);
             showSnackbar('프로필 이미지 변경에 실패했습니다. 다시 시도해주세요.', 'error');

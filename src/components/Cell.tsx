@@ -17,7 +17,7 @@ import {
     Typography,
     useMediaQuery
 } from '@mui/material';
-import { lighten, useTheme } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { ColorPalette } from './types';
 
@@ -37,9 +37,16 @@ interface CellProps {
     loadingSubMandalartAI?: boolean;
     objectiveIndex?: number;
     readOnly?: boolean;
+    centerContent?: boolean;
+    visualMode?: 'default' | 'preview';
+    shapeVariant?: 'square' | 'circle';
+    perfMode?: boolean; 
+    progressRatio?: number;
+    isRelated?: boolean; 
+    isHovered?: boolean; 
 }
 
-const Cell: React.FC<CellProps> = ({
+const CellComponent: React.FC<CellProps> = ({
                                        id,
                                        name,
                                        status,
@@ -54,7 +61,14 @@ const Cell: React.FC<CellProps> = ({
                                        loadingObjectiveAI = null,
                                        loadingSubMandalartAI = false,
                                        objectiveIndex,
-                                       readOnly = false
+                                       readOnly = false,
+                                       centerContent = false,
+                                       visualMode = 'default',
+                                       shapeVariant = 'square',
+                                       perfMode = false,
+                                       progressRatio,
+                                       isRelated = false,
+                                       isHovered = false,
                                    }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -73,16 +87,16 @@ const Cell: React.FC<CellProps> = ({
             setIsEditing(false);
             return;
         }
+        const prevName = name;
+        const newName = currentName;
         setIsEditing(false);
-        await updateItemName(id, type, currentName);
+        await updateItemName(id, type, newName);
     };
 
 
     const handleUpdateStatus = async () => {
         await updateItemStatus(id, type);
     };
-
-    // 모바일 터치 핸들러 (즉시 액션 메뉴 표시)
     const handleMobileTouch = useCallback(() => {
         if (!isMobile || isEditing || readOnly) return;
         setShowMobileActions(true);
@@ -107,63 +121,117 @@ const Cell: React.FC<CellProps> = ({
 
     const isDone = status === 'DONE';
 
+    const baseRadius = 8;
+    const isPreview = false; 
+    const isCircle = false; 
     const cellStyle: React.CSSProperties = {
         height: '100%',
         width: '100%',
+        minWidth: '0',
+        minHeight: '0',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center', // To make scrolling start from the top
-        alignItems: 'center',
+        justifyContent: 'center', 
+        alignItems: 'center', 
         position: 'relative',
         boxSizing: 'border-box',
-        borderRadius: 2,
-        textAlign: 'center',
-        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-        overflowY: 'auto', // Enable vertical scrolling for overflow
+        borderRadius: 0, 
+        textAlign: 'center', 
+        transition: perfMode ? 'none' : 'all 0.35s cubic-bezier(.4,0,.2,1)',
+        overflow: 'visible', 
+        padding: '4px', 
+        backdropFilter: 'none', 
+        WebkitBackdropFilter: 'none', 
+        
+        aspectRatio: '1 / 1',
+        flexShrink: 0,
+        
+        wordWrap: 'break-word',
+        whiteSpace: 'normal',
+        
+        transform: isRelated ? (isHovered ? 'scale(1.05)' : 'scale(1.02)') : 'scale(1)',
+        zIndex: isRelated ? (isHovered ? 10 : 5) : 1,
+        
+        filter: isRelated ? 'brightness(1.05) saturate(1.1)' : 'none',
+        
+        border: isRelated ? 
+            (isHovered ? 
+                `2px solid ${palette?.main || theme.palette.primary.main}` : 
+                `1px solid ${alpha(palette?.main || theme.palette.primary.main, 0.3)}`
+            ) : undefined,
     };
 
+    const isDark = theme.palette.mode === 'dark';
+    const toneBg = (col: string, alphaVal: number) => `linear-gradient(145deg, ${alpha(col, alphaVal)}, ${alpha(col, alphaVal*0.5)})`;
+
+    
+    const prog = typeof progressRatio === 'number' ? Math.max(0, Math.min(1, progressRatio)) : undefined;
+    const progHue = palette?.main || theme.palette.primary.main;
+    const progBorderColor = prog!==undefined ? alpha(progHue, 0.35 + 0.45*prog) : undefined;
+    const progShadowColor = prog!==undefined ? alpha(progHue, 0.2 + 0.5*prog) : undefined;
+
     if (isMainSubject) {
-        cellStyle.backgroundColor = theme.palette.primary.main;
-        cellStyle.color = theme.palette.primary.contrastText;
-        cellStyle.boxShadow = theme.palette.mode === 'dark'
-            ? '0 6px 18px rgba(0,0,0,0.55)'
-            : '0 6px 16px rgba(0,0,0,0.18)';
+        cellStyle.background = perfMode ? palette.main || 'var(--gradient-primary)' : 'var(--gradient-primary)';
+        cellStyle.color = '#fff';
+        cellStyle.boxShadow = isDark ? '0 10px 28px -6px rgba(0,0,0,0.65)' : '0 10px 26px -4px rgba(15,23,42,0.22)';
+        cellStyle.border = '1px solid ' + (progBorderColor || alpha('#ffffff', isDark?0.22:0.4));
+        cellStyle.position = 'relative';
     } else if (isCenter && palette) {
-        cellStyle.backgroundColor = theme.palette.background.paper;
-        cellStyle.color = theme.palette.text.primary;
-        cellStyle.border = '2px solid';
-        cellStyle.borderColor = palette.main;
-        cellStyle.boxShadow = theme.palette.mode === 'dark'
-            ? '0 2px 10px rgba(0,0,0,0.5)'
-            : '0 2px 8px rgba(0,0,0,0.08)';
+        cellStyle.background = perfMode ? alpha(palette.main, isDark?0.25:0.35) : toneBg(palette.main, isDark?0.28:0.4);
+        cellStyle.border = '1.5px solid ' + (progBorderColor || alpha(palette.main, isDark?0.9:0.85));
+        cellStyle.boxShadow = isDark ? '0 4px 16px -4px rgba(0,0,0,0.6)' : '0 4px 14px -4px rgba(15,23,42,0.18)';
     } else {
-        cellStyle.backgroundColor = theme.palette.background.paper;
-        cellStyle.border = '1px solid';
-        cellStyle.borderColor = palette ? palette.main : theme.palette.divider;
+        const baseCol = palette?.main || theme.palette.divider;
+        cellStyle.background = perfMode
+            ? (visualMode==='preview' ? alpha(baseCol, isDark?0.12:0.16) : theme.palette.background.paper)
+            : (visualMode==='preview'
+                ? toneBg(baseCol, isDark?0.10:0.18)
+                : theme.palette.background.paper);
+        cellStyle.border = '1px solid ' + (progBorderColor || alpha(baseCol, isDark?0.55:0.55));
     }
 
     if (isDone) {
         const base = palette?.main || theme.palette.primary.main;
-        if (isMainSubject) {
-            cellStyle.backgroundColor = theme.palette.primary.main;
-            cellStyle.color = theme.palette.primary.contrastText;
-        } else if (isCenter) {
-            cellStyle.backgroundColor = theme.palette.mode === 'dark'
-                ? theme.palette.background.default
-                : lighten(base, 0.6);
-            cellStyle.borderColor = base;
+        if (theme.palette.mode === 'dark') {
+            
+            const darkA = alpha(base, 0.08);
+            const darkB = alpha(base, 0.15);
+            if (isMainSubject) {
+                cellStyle.background = perfMode ? darkA : `linear-gradient(135deg, ${darkA}, ${darkB})`;
+                cellStyle.color = alpha('#ffffff', 0.9);
+            } else if (isCenter) {
+                cellStyle.background = perfMode ? darkA : `linear-gradient(145deg, ${darkA}, ${darkB})`;
+                cellStyle.borderColor = alpha(base, 0.4);
+            } else {
+                cellStyle.background = perfMode ? darkB : `linear-gradient(160deg, ${darkB}, ${darkA})`;
+                cellStyle.borderColor = alpha(base, 0.3);
+            }
+            cellStyle.boxShadow = perfMode ? 
+                `inset 0 0 0 1px ${alpha(base, 0.2)}` : 
+                `inset 0 0 0 1px ${alpha(base, 0.2)}, 0 1px 4px ${alpha(base, 0.1)}`;
         } else {
-            cellStyle.backgroundColor = theme.palette.mode === 'dark'
-                ? theme.palette.background.default
-                : lighten(base, 0.75);
-            cellStyle.borderColor = base;
+            
+            const lightA = alpha(base, 0.15);
+            const lightB = alpha(base, 0.25);
+            if (isMainSubject) {
+                cellStyle.background = perfMode ? base : `linear-gradient(135deg, ${base}, ${alpha(base, 0.8)})`;
+                cellStyle.color = '#fff';
+            } else if (isCenter) {
+                cellStyle.background = perfMode ? lightA : `linear-gradient(145deg, ${lightA}, ${lightB})`;
+                cellStyle.borderColor = alpha(base, 0.6);
+            } else {
+                cellStyle.background = perfMode ? lightB : `linear-gradient(160deg, ${lightB}, ${lightA})`;
+                cellStyle.borderColor = alpha(base, 0.5);
+            }
+            cellStyle.boxShadow = perfMode ? 
+                `inset 0 0 0 1px ${alpha(base, 0.4)}` : 
+                `inset 0 0 0 1px ${alpha(base, 0.4)}, 0 2px 4px ${alpha(base, 0.08)}`;
         }
+        
         if (!isMainSubject) {
-            cellStyle.color = theme.palette.text.secondary;
+            cellStyle.color = theme.palette.mode === 'dark' ? alpha(theme.palette.text.primary, 0.85) : theme.palette.text.secondary;
         }
-        cellStyle.filter = isMainSubject
-            ? 'brightness(0.97) saturate(0.92)'
-            : 'brightness(0.94) saturate(0.88)';
+        cellStyle.position = 'relative';
     }
 
     const showAILoading = (
@@ -186,32 +254,43 @@ const Cell: React.FC<CellProps> = ({
         <>
             <Paper 
                 elevation={0} 
-                onClick={!isEditing ? handleMobileTouch : undefined} // 편집 중이 아닐 때만 터치 이벤트 활성화
+                onClick={!isEditing ? handleMobileTouch : undefined}
+                data-status={status}
                 sx={{
                     ...cellStyle,
-                    padding: {xs: 0.5, sm: 1},
-                    // 데스크톱에서만 호버 효과 적용
-                    '@media (hover: hover)': {
+                    '@media (hover: hover)': perfMode ? undefined : {
                         '&:hover': {
                             transform: 'translateY(-2px)',
-                            boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+                            boxShadow: isDone
+                                ? '0 6px 14px rgba(0,0,0,0.12)'
+                                : '0 12px 26px rgba(0,0,0,0.18)',
                         },
-                        '&:hover .cell-actions': {
-                            opacity: 1,
-                        },
+                        '&:hover .cell-actions': { opacity: 1 },
                     },
-                    // 모바일에서 터치 가능함을 나타내는 커서
+                    '@media (prefers-reduced-motion: reduce)': {
+                        transition: 'none',
+                        '&:hover': { transform: 'none', boxShadow: 'none' }
+                    },
+                    outline: 'none',
                     cursor: isMobile && !isEditing && !readOnly ? 'pointer' : 'default',
+                    '&:focus-visible': {
+                        boxShadow: '0 0 0 3px rgba(37,99,255,0.4)',
+                    },
                 }}
             >
+            {isDone && !isEditing && (
+                <Box sx={{ position: 'absolute', top: 4, left: 4, zIndex: 2, display:'flex', alignItems:'center', gap:.5 }}>
+                    {/* 체크표시 아이콘 제거 */}
+                </Box>
+            )}
             {isLoading ? (
-                <CircularProgress size={24} color="inherit"/>
+                <CircularProgress size={24} color="inherit" disableShrink />
             ) : isEditing ? (
                 <TextField
                     value={currentName}
                     onChange={(e) => setCurrentName(e.target.value)}
                     onBlur={handleUpdateName}
-                    onClick={(e) => e.stopPropagation()} // 클릭 이벤트 전파 방지
+                    onClick={(e) => e.stopPropagation()}
                     onKeyPress={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -223,27 +302,48 @@ const Cell: React.FC<CellProps> = ({
                     variant="standard"
                     multiline
                     sx={{
-                        input: {textAlign: 'center', color: 'inherit', fontSize: 'inherit', fontWeight: 'inherit'},
                         width: '100%',
-                        padding: 0
+                        padding: 0,
+                        '& .MuiInputBase-input': { textAlign: 'left', color: 'inherit', fontSize: 'inherit', fontWeight: 'inherit' }
                     }}
                     InputProps={{disableUnderline: true}}
                 />
             ) : (
-        <Typography
+                <Typography
                     sx={{
-            fontWeight: isMainSubject ? 800 : (isCenter ? 600 : 500),
-            fontSize: {xs: isMainSubject ? '0.85rem' : (isCenter ? '0.7rem' : '0.65rem'), sm: isMainSubject ? '1.15rem' : (isCenter ? '0.95rem' : '0.85rem')},
-                        lineHeight: 1.3,
+                        fontWeight: isMainSubject ? 800 : (isCenter ? 600 : 500),
+                        fontSize: {xs: isMainSubject ? '0.65rem' : (isCenter ? '0.55rem' : '0.5rem'), sm: isMainSubject ? '0.8rem' : (isCenter ? '0.7rem' : '0.6rem')},
+                        lineHeight: 1.0, 
+                        whiteSpace: 'normal',
+                        overflowWrap: 'break-word',
                         wordBreak: 'break-word',
                         textDecoration: isDone ? 'line-through' : 'none',
                         color: 'inherit',
+                        textAlign: 'center', 
+                        width: '100%',
+                        px: 0, 
+                        py: 0, 
+                        display: 'block',
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        fontFamily: 'inherit',
+                        overflow: 'visible', 
+                        
+                        position: 'relative',
+                        zIndex: 1,
+                        
+                        hyphens: 'auto',
+                        wordSpacing: 'normal',
+                        letterSpacing: 'normal',
+                        
+                        textDecorationThickness: isDone ? '2px' : 'auto',
+                        textDecorationColor: isDone ? (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)') : 'auto',
                     }}
                 >
                     {name}
                 </Typography>
             )}
-            {!(loadingSubjectAI || loadingObjectiveAI !== null) && !isEditing && !readOnly && (
+            {!isEditing && !readOnly && (
                 <Box
                     className="cell-actions"
                     sx={{
@@ -251,8 +351,8 @@ const Cell: React.FC<CellProps> = ({
                         top: 2,
                         right: 2,
                         opacity: 0,
-                        transition: 'opacity 0.2s',
-                        display: { xs: 'none', md: 'flex' }, // 모바일에서는 아예 숨김, 데스크톱에서만 표시
+                        transition: perfMode ? 'none' : 'opacity 0.25s',
+                        display: { xs: 'none', md: 'flex' },
                         gap: 0.5,
                         backgroundColor: 'action.hover',
                         borderRadius: '12px',
@@ -260,8 +360,11 @@ const Cell: React.FC<CellProps> = ({
                     }}
                 >
                     <Tooltip title="Edit">
-                        <IconButton size="small" onClick={() => setIsEditing(true)}
-                                    sx={{color: 'text.secondary', padding: '2px'}}>
+                        <IconButton 
+                            size="small" 
+                            onClick={() => setIsEditing(true)}
+                            sx={{color: 'text.secondary', padding: '2px'}}
+                        >
                             <EditIcon sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}/>
                         </IconButton>
                     </Tooltip>
@@ -274,7 +377,7 @@ const Cell: React.FC<CellProps> = ({
                                 sx={{color: 'text.secondary', padding: '2px'}}
                             >
                                 {loadingSubMandalartAI ? (
-                                    <CircularProgress size={12} sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}} />
+                                    <CircularProgress size={12} disableShrink sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}} />
                                 ) : (
                                     <AddIcon sx={{fontSize: {xs: '0.8rem', sm: '1rem'}}}/>
                                 )}
@@ -303,9 +406,9 @@ const Cell: React.FC<CellProps> = ({
                 anchor="bottom"
                 open={showMobileActions}
                 onClose={() => setShowMobileActions(false)}
-                disableRestoreFocus // 포커스 복원 방지
-                disableEnforceFocus // 포커스 강제 유지 방지
-                keepMounted={false} // 닫힐 때 DOM에서 완전히 제거
+                disableRestoreFocus 
+                disableEnforceFocus 
+                keepMounted={false} 
                 sx={{
                     '& .MuiDrawer-paper': {
                         borderTopLeftRadius: 16,
@@ -347,7 +450,7 @@ const Cell: React.FC<CellProps> = ({
                             >
                                 <ListItemIcon sx={{ minWidth: 40 }}>
                                     {loadingSubMandalartAI ? (
-                                        <CircularProgress size={24} />
+                                        <CircularProgress size={24} disableShrink />
                                     ) : (
                                         <AddIcon />
                                     )}
@@ -383,5 +486,17 @@ const Cell: React.FC<CellProps> = ({
         </>
     );
 };
+
+const Cell = React.memo(CellComponent, (prev, next) => {
+    
+    return prev.id === next.id &&
+        prev.name === next.name &&
+        prev.status === next.status &&
+        prev.type === next.type &&
+        prev.readOnly === next.readOnly &&
+        prev.perfMode === next.perfMode &&
+        prev.visualMode === next.visualMode &&
+        prev.shapeVariant === next.shapeVariant;
+});
 
 export default Cell;

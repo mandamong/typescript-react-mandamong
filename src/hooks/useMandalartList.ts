@@ -21,7 +21,6 @@ export const useMandalartList = () => {
             try {
                 const response = await mandalartService.getMandalarts(String(1), String(MANDALART_LIST_PAGE_SIZE));
                 if (response && response.content) {
-                    // 새 응답 형태: { name, subject, status, id? }
                     setMandalarts(response.content as unknown as MandalartListItem[]);
                     setHasNext(!!response.hasNext);
                     pageRef.current = 1;
@@ -35,12 +34,9 @@ export const useMandalartList = () => {
                 setLoading(false);
             }
         };
-
-        // 인증 상태가 true일 때만 API 호출
         if (isAuthenticated) {
             fetchMandalarts();
         } else {
-            // 인증되지 않은 경우 로딩 중단
             setLoading(false);
             setMandalarts([]);
             setHasNext(false);

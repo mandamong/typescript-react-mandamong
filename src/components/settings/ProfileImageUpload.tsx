@@ -25,22 +25,16 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
-
-        // 파일 크기 체크 (5MB 제한)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 5 * 1024 * 1024; 
         if (file.size > maxSize) {
             showSnackbar('파일 크기는 5MB 이하여야 합니다.', 'error');
             return;
         }
-
-        // 파일 타입 체크
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
             showSnackbar('지원되지 않는 파일 형식입니다. (JPG, PNG, GIF, WebP만 가능)', 'error');
             return;
         }
-
-        // 미리보기 생성
         const reader = new FileReader();
         reader.onload = (e) => {
             setPreviewUrl(e.target?.result as string);
@@ -49,12 +43,10 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
 
         try {
             await onImageUpload(file);
-            setPreviewUrl(null); // 업로드 성공 시 미리보기 초기화
+            setPreviewUrl(null); 
     } catch (_err) {
-            setPreviewUrl(null); // 업로드 실패 시 미리보기 초기화
+            setPreviewUrl(null); 
         }
-
-        // 파일 입력 초기화
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }

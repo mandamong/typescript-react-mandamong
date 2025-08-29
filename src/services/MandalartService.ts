@@ -13,9 +13,6 @@ class MandalartService {
     page?: string,
     size?: string
   ): Promise<Page<Mandalart> | undefined> {
-    // NOTE: 백엔드가 목록 응답을 단순화(name, subject, status)한 경우에도
-    // Mandalart 타입(중첩 구조)와 달라 캐스팅이 필요할 수 있으므로
-    // 호출부에서 필요한 형태로 narrowing / 변환하여 사용.
     const pageNumber = page ?? "0";
     const pageSize = size ?? "5";
     const { data } = await axiosInstance.get<{ payload: Page<Mandalart> }>(
@@ -59,10 +56,10 @@ class MandalartService {
     subject?: string,
     status?: string
   ): Promise<void> {
-    await axiosInstance.patch(`/mandalart/subject/${subjectId}`, {
-      subject,
-      status,
-    });
+  const body: Record<string, any> = {};
+  if (subject !== undefined) body.subject = subject;
+  if (status !== undefined) body.status = status;
+  await axiosInstance.patch(`/mandalart/subject/${subjectId}`, body);
   }
 
   async updateObjective(
@@ -70,10 +67,10 @@ class MandalartService {
     objective?: string,
     status?: string
   ): Promise<void> {
-    await axiosInstance.patch(`/mandalart/objective/${objectiveId}`, {
-      objective,
-      status,
-    });
+  const body: Record<string, any> = {};
+  if (objective !== undefined) body.objective = objective;
+  if (status !== undefined) body.status = status;
+  await axiosInstance.patch(`/mandalart/objective/${objectiveId}`, body);
   }
 
   async updateAction(
@@ -81,10 +78,10 @@ class MandalartService {
     action?: string,
     status?: string
   ): Promise<void> {
-    await axiosInstance.patch(`/mandalart/action/${actionId}`, {
-      action,
-      status,
-    });
+  const body: Record<string, any> = {};
+  if (action !== undefined) body.action = action;
+  if (status !== undefined) body.status = status;
+  await axiosInstance.patch(`/mandalart/action/${actionId}`, body);
   }
 
   async deleteMandalart(mandalartId: string): Promise<void> {
