@@ -2,10 +2,8 @@ import FeatureGrid from "@/components/design/FeatureGrid";
 import GlassPanel from "@/components/design/GlassPanel";
 import GradientDivider from "@/components/design/GradientDivider";
 import HeroSection from "@/components/design/HeroSection";
-import type { MandalartGridData } from "@/components/MandalartGrid";
-import MandalartGrid from "@/components/MandalartGrid";
 import PrefetchOnVisible from "@/components/PrefetchOnVisible";
-import { usePerformance } from '@/contexts/PerformanceContext';
+import { SampleMandalart } from "@/components/SampleMandalart";
 import useReveal from "@/hooks/useReveal";
 import {
   Box,
@@ -13,71 +11,28 @@ import {
   Container,
   Stack,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import React, { useMemo } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-const demoData: MandalartGridData = {
-  mandalart: { id: 0, name: "예시 만다르트 이름" },
-  subject: { id: 1, name: "예시 만다르트 주제 (올해 목표)" },
-  objectives: [
-    { id: 2, name: "건강 관리" },
-    { id: 3, name: "커리어 성장" },
-    { id: 4, name: "재정 관리" },
-    { id: 5, name: "취미 / 휴식" },
-  ],
-  actions: [
-    [
-      { id: 6, name: "주 3회 운동" },
-      { id: 7, name: "7시간 수면" },
-      { id: 8, name: "매일 2L 수분" },
-      { id: 9, name: "주 1회 스트레칭" },
-      { id: 10, name: "체성분 측정" },
-    ],
-    [
-      { id: 11, name: "기술 블로그 작성" },
-      { id: 12, name: "오픈소스 PR 1건" },
-      { id: 13, name: "주 5시간 학습" },
-      { id: 14, name: "영어 기사 리딩" },
-      { id: 15, name: "사이드 프로젝트" },
-    ],
-    [
-      { id: 16, name: "지출 카테고리 트래킹" },
-      { id: 17, name: "월 예산 수립" },
-      { id: 18, name: "비상금 적립" },
-      { id: 19, name: "불필요 구독 점검" },
-      { id: 20, name: "투자 리밸런싱" },
-    ],
-    [
-      { id: 21, name: "일요일 디지털 디톡스" },
-      { id: 22, name: "독서 30분" },
-      { id: 23, name: "주 1회 자연 산책" },
-      { id: 24, name: "친구와 만남" },
-      { id: 25, name: "새 취미 체험" },
-    ],
-  ],
-};
 
 const IntroPage: React.FC = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { perf } = usePerformance();
-
-  const gridData = useMemo(() => demoData, []);
   useReveal();
 
   return (
     <Box>
-  {/* Prefetch hidden triggers */}
-  <PrefetchOnVisible importFunc={() => import('./MandalartListPage')} />
-  <PrefetchOnVisible importFunc={() => import('./MandalartCreatePage')} />
-  <PrefetchOnVisible importFunc={() => import('./MandalartDetailPage')} />
+      {/* Prefetch hidden triggers */}
+      <PrefetchOnVisible importFunc={() => import("./MandalartListPage")} />
+      <PrefetchOnVisible importFunc={() => import("./MandalartCreatePage")} />
+      <PrefetchOnVisible importFunc={() => import("./MandalartDetailPage")} />
       <HeroSection
         eyebrow={
-          <Box sx={{ height: { xs: '32px', sm: '40px' } }}>
-            <img src="/mandamong-logo.svg" alt="Mandamong" style={{ height: '80%' }} />
+          <Box sx={{ height: { xs: "32px", sm: "40px" } }}>
+            <img
+              src="/mandamong-logo.svg"
+              alt="Mandamong"
+              style={{ height: "80%" }}
+            />
           </Box>
         }
         title={<>목표를 구조화하고 성취하세요</>}
@@ -91,8 +46,8 @@ const IntroPage: React.FC = () => {
           onClick: () => navigate("/signup"),
         }}
         secondaryAction={{ label: "로그인", onClick: () => navigate("/login") }}
-  centerScreen
-  centerShift={{ xs: 28, sm: 52, md: 60, lg: 68 }}
+        centerScreen
+        centerShift={{ xs: 28, sm: 52, md: 60, lg: 68 }}
       />
       <Container
         maxWidth="lg"
@@ -111,15 +66,7 @@ const IntroPage: React.FC = () => {
               만다르트 미리보기
             </Typography>
             <Box sx={{ position: "relative" }}>
-              <MandalartGrid
-                data={gridData}
-                updateItemName={() => {}}
-                updateItemStatus={() => {}}
-                readOnly
-                visualMode="preview"
-                shape="circle"
-                perfMode={perf}
-              />
+              <SampleMandalart />
             </Box>
           </GlassPanel>
 

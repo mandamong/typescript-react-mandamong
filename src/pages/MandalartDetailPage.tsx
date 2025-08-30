@@ -275,7 +275,7 @@ const MandalartDetailPage: React.FC = () => {
     } finally {
       setLoadingSubjectAI(false);
     }
-  }, [setMandalart, showSnackbar]);
+  }, [mandalart, setMandalart, showSnackbar]);
 
   const updateMandalartItemName = useCallback(async (itemId: number, type: 'subject' | 'objective' | 'action', newItemName: string) => {
     if (!mandalart) return;
@@ -402,12 +402,12 @@ const MandalartDetailPage: React.FC = () => {
           updateItemName={updateItemName}
           updateItemStatus={updateItemStatus}
           onCreateSubMandalart={handleCreateSubMandalart}
-          loadingSubjectAI={loadingSubjectAI}
-          loadingObjectiveAI={loadingObjectiveAI}
+          loadingSubjectAI={false}
+          loadingObjectiveAI={null}
           loadingSubMandalartAI={false}
           readOnly={false}
-          visualMode='default'
-          shape='square'
+          visualMode='preview'
+          shape='circle'
           perfMode={perf}
           showConnections={false}
         />
@@ -646,8 +646,8 @@ const MandalartDetailPage: React.FC = () => {
                     updateItemStatus={()=>{}}
                     loadingSubjectAI={loadingSubAI}
                     loadingObjectiveAI={null}
-                    visualMode='default'
-                    shape='square'
+                    visualMode='preview'
+                    shape='circle'
                     readOnly={false}
                     perfMode={perf}
                     showConnections={false}

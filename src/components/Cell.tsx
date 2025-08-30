@@ -32,24 +32,24 @@ const useFitText = (text: string) => {
             const parent = element.parentElement;
             if (!parent) return;
 
-            // Reset font size to the max possible to get the initial overflow
-            let currentSize = 16; // Max font size in px
+            
+            let currentSize = 16; 
             element.style.fontSize = `${currentSize}px`;
 
-            // Shrink font size until it fits the container
+            
             while (
                 (element.scrollHeight > parent.clientHeight || element.scrollWidth > parent.clientWidth) &&
-                currentSize > 7 // Min font size in px
+                currentSize > 7 
             ) {
                 currentSize--;
                 element.style.fontSize = `${currentSize}px`;
             }
         };
 
-        // Run on initial render and when text changes
+        
         checkAndAdjust();
 
-        // Also run if the window is resized
+        
         window.addEventListener('resize', checkAndAdjust);
         return () => window.removeEventListener('resize', checkAndAdjust);
 

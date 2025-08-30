@@ -252,7 +252,7 @@ const MandalartGridComponent: React.FC<MandalartGridProps> = ({
     justifyContent: 'center',
     p: { xs: 1, sm: 2 },
     boxSizing: 'border-box',
-    overflow: 'hidden', // Prevent scrollbars on the container
+    overflow: 'hidden', 
   };
 
   return (
@@ -274,8 +274,8 @@ const MandalartGridComponent: React.FC<MandalartGridProps> = ({
             aspectRatio: '1 / 1',
             width: '100%',
             height: 'auto',
-            maxWidth: 'min(95vw, 95vh)', // Use the smaller of viewport width or height
-            maxHeight: 'min(95vw, 95vh)', // Use the smaller of viewport width or height
+            maxWidth: 'min(95vw, 95vh)', 
+            maxHeight: 'min(95vw, 95vh)', 
             margin: 'auto',
             position: 'relative',
             boxSizing: 'border-box',
