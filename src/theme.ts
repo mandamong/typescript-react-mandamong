@@ -140,7 +140,7 @@ export const createAppTheme = (mode: ThemeMode) => {
                     '::-webkit-scrollbar': { width: 10 },
                     '::-webkit-scrollbar-thumb': {
                         backgroundColor: alpha('#475569', 0.35),
-                        borderRadius: 20,
+                        borderRadius: 14,
                         border: '2px solid transparent',
                         backgroundClip: 'content-box',
                     },
@@ -158,6 +158,8 @@ export const createAppTheme = (mode: ThemeMode) => {
                         color: 'var(--text-primary)',
                         borderBottom: `1px solid ${theme.palette.divider}`,
                         boxShadow: 'var(--shadow-sm)',
+                        borderRadius: 28,
+                        overflow: 'hidden',
                     }),
                 },
             },

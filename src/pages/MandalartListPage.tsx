@@ -5,25 +5,25 @@ import { useMandalartList } from "@/hooks/useMandalartList";
 import { mandalartService } from "@/services/MandalartService";
 import AddIcon from "@mui/icons-material/Add";
 import {
-    Box,
-    Button,
-    Card,
-    CardActionArea,
-    CardContent,
-    Chip,
-    CircularProgress,
-    Divider,
-    Fab,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
-    ToggleButton,
-    ToggleButtonGroup,
-    Tooltip,
-    Typography,
-    alpha,
-    useTheme,
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Divider,
+  Fab,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
+  Typography,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
@@ -264,9 +264,9 @@ const MandalartListPage: React.FC = () => {
           >
             <InputLabel id="sort-label">정렬</InputLabel>
             <Select labelId="sort-label" label="정렬" value={sortKey} onChange={e=> setSortKey(e.target.value as any)}>
-              <MenuItem value="RECENT">최근 생성순</MenuItem>
-              <MenuItem value="PROGRESS_DESC">진행률 높은 순</MenuItem>
-              <MenuItem value="NAME_ASC">이름 A-Z</MenuItem>
+              <MenuItem value="RECENT">생성순</MenuItem>
+              <MenuItem value="PROGRESS_DESC">높은 진행률 순</MenuItem>
+              <MenuItem value="NAME_ASC">이름순</MenuItem>
             </Select>
           </FormControl>
         </Box>
