@@ -323,6 +323,9 @@ html {
 
 /* --- Dark mode transition ---------------------------------------------------- */
 body { transition: background .8s ease, color .6s ease; }
+
+body.bg-effect-disabled { transition: none !important; }
+
 @media (prefers-reduced-motion: reduce) { body { transition:none !important; } }
 
 /* Focus ring unify */

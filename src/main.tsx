@@ -14,16 +14,9 @@ import './index.css';
 setupAxiosInterceptors();
 
 const AppShell = () => {
-  const { particles } = useUIEffects();
-  const { perf, ultra } = usePerformance();
   usePerformanceMetrics();
   useParallax();
-  return (
-    <>
-  {particles && !perf && <Particles count={ultra ? 12 : 28} />}
-      <AppRouter />
-    </>
-  );
+  return <AppRouter />;
 };
 
 export const Root = () => (

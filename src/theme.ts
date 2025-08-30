@@ -149,6 +149,9 @@ export const createAppTheme = (mode: ThemeMode) => {
             MuiAppBar: {
                 styleOverrides: {
                     root: ({ theme }) => ({
+                        left: 0,
+                        right: 0,
+                        top: 0,
                         background: 'linear-gradient(180deg,rgba(15,23,42,0.85),rgba(15,23,42,0.7))',
                         backdropFilter: 'saturate(1.6) blur(10px)',
                         WebkitBackdropFilter: 'saturate(1.6) blur(10px)',

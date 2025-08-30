@@ -6,11 +6,13 @@ import { mandalartService } from "@/services/MandalartService";
 import AddIcon from "@mui/icons-material/Add";
 import {
     Box,
+    Button,
     Card,
     CardActionArea,
     CardContent,
     Chip,
     CircularProgress,
+    Divider,
     Fab,
     FormControl,
     InputLabel,
@@ -590,20 +592,19 @@ const MandalartListPage: React.FC = () => {
             <Box ref={sentinelRef} sx={{ height: 16 }} />
           ) : (
             !loading && (
-              <EmptyState
-                icon="🎉"
-                title="모든 만다르트를 불러왔습니다"
-                description="새로운 만다르트를 만들어보세요!"
-                sx={{
-                  mt: 4,
-                  background: (t) => t.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(59,130,246,0.05)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 3,
-                  py: { xs: 6, sm: 8 },
-                }}
-              />
+              <Box sx={{ textAlign: 'center', py: { xs: 6, sm: 8 } }}>
+                <Divider>
+                  <Chip label="모든 만다르트를 불러왔습니다" size="small" />
+                </Divider>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate('/mandalart/new')}
+                  sx={{ mt: 4 }}
+                  startIcon={<AddIcon />}
+                >
+                  새 만다르트 만들기
+                </Button>
+              </Box>
             )
           )}
         </>

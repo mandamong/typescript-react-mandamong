@@ -633,7 +633,7 @@ const MandalartDetailPage: React.FC = () => {
               </GlassPanel>
             )}
             {subStep===1 && subData && (
-              <GlassPanel gradientBorder glow sx={{ p:{ xs:2.4, sm:3.2 }, borderRadius:{ xs:4, sm:5 }, position:'relative', height: '80vh', display: 'flex', flexDirection: 'column' }}>
+              <GlassPanel gradientBorder glow sx={{ p:{ xs:2.4, sm:3.2 }, borderRadius:{ xs:4, sm:5 }, position:'relative', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ position:'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
                   <MandalartGrid
                     data={{
