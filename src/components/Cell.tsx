@@ -18,8 +18,46 @@ import {
     useMediaQuery
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ColorPalette } from './types';
+
+const useFitText = (text: string) => {
+    const ref = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        const element = ref.current;
+        if (!element) return;
+
+        const checkAndAdjust = () => {
+            const parent = element.parentElement;
+            if (!parent) return;
+
+            // Reset font size to the max possible to get the initial overflow
+            let currentSize = 16; // Max font size in px
+            element.style.fontSize = `${currentSize}px`;
+
+            // Shrink font size until it fits the container
+            while (
+                (element.scrollHeight > parent.clientHeight || element.scrollWidth > parent.clientWidth) &&
+                currentSize > 7 // Min font size in px
+            ) {
+                currentSize--;
+                element.style.fontSize = `${currentSize}px`;
+            }
+        };
+
+        // Run on initial render and when text changes
+        checkAndAdjust();
+
+        // Also run if the window is resized
+        window.addEventListener('resize', checkAndAdjust);
+        return () => window.removeEventListener('resize', checkAndAdjust);
+
+    }, [text]);
+
+    return ref;
+};
+
 
 interface CellProps {
     id: number;
@@ -47,29 +85,29 @@ interface CellProps {
 }
 
 const CellComponent: React.FC<CellProps> = ({
-                                       id,
-                                       name,
-                                       status,
-                                       type,
-                                       palette,
-                                       updateItemName,
-                                       updateItemStatus,
-                                       onCreateSubMandalart,
-                                       isCenter = false,
-                                       isMainSubject = false,
-                                       loadingSubjectAI = false,
-                                       loadingObjectiveAI = null,
-                                       loadingSubMandalartAI = false,
-                                       objectiveIndex,
-                                       readOnly = false,
-                                       centerContent = false,
-                                       visualMode = 'default',
-                                       shapeVariant = 'square',
-                                       perfMode = false,
-                                       progressRatio,
-                                       isRelated = false,
-                                       isHovered = false,
-                                   }) => {
+    id,
+    name,
+    status,
+    type,
+    palette,
+    updateItemName,
+    updateItemStatus,
+    onCreateSubMandalart,
+    isCenter = false,
+    isMainSubject = false,
+    loadingSubjectAI = false,
+    loadingObjectiveAI = null,
+    loadingSubMandalartAI = false,
+    objectiveIndex,
+    readOnly = false,
+    centerContent = false,
+    visualMode = 'default',
+    shapeVariant = 'square',
+    perfMode = false,
+    progressRatio,
+    isRelated = false,
+    isHovered = false,
+}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const canChangeStatus = type === 'action' && !readOnly;
@@ -77,6 +115,7 @@ const CellComponent: React.FC<CellProps> = ({
     const [isEditing, setIsEditing] = useState(false);
     const [currentName, setCurrentName] = useState(name);
     const [showMobileActions, setShowMobileActions] = useState(false);
+    const textRef = useFitText(name);
 
     useEffect(() => {
         setCurrentName(name);
@@ -121,9 +160,6 @@ const CellComponent: React.FC<CellProps> = ({
 
     const isDone = status === 'DONE';
 
-    const baseRadius = 8;
-    const isPreview = false; 
-    const isCircle = false; 
     const cellStyle: React.CSSProperties = {
         height: '100%',
         width: '100%',
@@ -131,29 +167,24 @@ const CellComponent: React.FC<CellProps> = ({
         minHeight: '0',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center', 
-        alignItems: 'center', 
+        justifyContent: 'center',
+        alignItems: 'center',
         position: 'relative',
         boxSizing: 'border-box',
-        borderRadius: 0, 
-        textAlign: 'center', 
+        borderRadius: 0,
+        textAlign: 'center',
         transition: perfMode ? 'none' : 'all 0.35s cubic-bezier(.4,0,.2,1)',
-        overflow: 'visible', 
-        padding: '4px', 
-        backdropFilter: 'none', 
-        WebkitBackdropFilter: 'none', 
-        
+        overflow: 'hidden',
+        padding: '5px',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         aspectRatio: '1 / 1',
         flexShrink: 0,
-        
         wordWrap: 'break-word',
         whiteSpace: 'normal',
-        
         transform: isRelated ? (isHovered ? 'scale(1.05)' : 'scale(1.02)') : 'scale(1)',
         zIndex: isRelated ? (isHovered ? 10 : 5) : 1,
-        
         filter: isRelated ? 'brightness(1.05) saturate(1.1)' : 'none',
-        
         border: isRelated ? 
             (isHovered ? 
                 `2px solid ${palette?.main || theme.palette.primary.main}` : 
@@ -164,11 +195,9 @@ const CellComponent: React.FC<CellProps> = ({
     const isDark = theme.palette.mode === 'dark';
     const toneBg = (col: string, alphaVal: number) => `linear-gradient(145deg, ${alpha(col, alphaVal)}, ${alpha(col, alphaVal*0.5)})`;
 
-    
     const prog = typeof progressRatio === 'number' ? Math.max(0, Math.min(1, progressRatio)) : undefined;
     const progHue = palette?.main || theme.palette.primary.main;
     const progBorderColor = prog!==undefined ? alpha(progHue, 0.35 + 0.45*prog) : undefined;
-    const progShadowColor = prog!==undefined ? alpha(progHue, 0.2 + 0.5*prog) : undefined;
 
     if (isMainSubject) {
         cellStyle.background = perfMode ? palette.main || 'var(--gradient-primary)' : 'var(--gradient-primary)';
@@ -183,17 +212,16 @@ const CellComponent: React.FC<CellProps> = ({
     } else {
         const baseCol = palette?.main || theme.palette.divider;
         cellStyle.background = perfMode
-            ? (visualMode==='preview' ? alpha(baseCol, isDark?0.12:0.16) : theme.palette.background.paper)
+            ? (visualMode==='preview' ? alpha(baseCol, isDark?0.12:0.16) : alpha(baseCol, isDark?0.12:0.16))
             : (visualMode==='preview'
                 ? toneBg(baseCol, isDark?0.10:0.18)
-                : theme.palette.background.paper);
+                : toneBg(baseCol, isDark?0.10:0.18));
         cellStyle.border = '1px solid ' + (progBorderColor || alpha(baseCol, isDark?0.55:0.55));
     }
 
     if (isDone) {
         const base = palette?.main || theme.palette.primary.main;
         if (theme.palette.mode === 'dark') {
-            
             const darkA = alpha(base, 0.08);
             const darkB = alpha(base, 0.15);
             if (isMainSubject) {
@@ -210,7 +238,6 @@ const CellComponent: React.FC<CellProps> = ({
                 `inset 0 0 0 1px ${alpha(base, 0.2)}` : 
                 `inset 0 0 0 1px ${alpha(base, 0.2)}, 0 1px 4px ${alpha(base, 0.1)}`;
         } else {
-            
             const lightA = alpha(base, 0.15);
             const lightB = alpha(base, 0.25);
             if (isMainSubject) {
@@ -242,7 +269,6 @@ const CellComponent: React.FC<CellProps> = ({
 
     let isLoading = showAILoading;
 
-    
     if (type === 'subject' && loadingSubjectAI) {
         isLoading = false;
     }
@@ -278,11 +304,6 @@ const CellComponent: React.FC<CellProps> = ({
                     },
                 }}
             >
-            {isDone && !isEditing && (
-                <Box sx={{ position: 'absolute', top: 4, left: 4, zIndex: 2, display:'flex', alignItems:'center', gap:.5 }}>
-                    {/* 체크표시 아이콘 제거 */}
-                </Box>
-            )}
             {isLoading ? (
                 <CircularProgress size={24} color="inherit" disableShrink />
             ) : isEditing ? (
@@ -310,32 +331,26 @@ const CellComponent: React.FC<CellProps> = ({
                 />
             ) : (
                 <Typography
+                    ref={textRef}
                     sx={{
                         fontWeight: isMainSubject ? 800 : (isCenter ? 600 : 500),
-                        fontSize: {xs: isMainSubject ? '0.65rem' : (isCenter ? '0.55rem' : '0.5rem'), sm: isMainSubject ? '0.8rem' : (isCenter ? '0.7rem' : '0.6rem')},
-                        lineHeight: 1.0, 
+                        lineHeight: 1.4,
                         whiteSpace: 'normal',
                         overflowWrap: 'break-word',
-                        wordBreak: 'break-word',
+                        wordBreak: 'break-all',
                         textDecoration: isDone ? 'line-through' : 'none',
                         color: 'inherit',
-                        textAlign: 'center', 
+                        textAlign: 'center',
                         width: '100%',
-                        px: 0, 
-                        py: 0, 
                         display: 'block',
                         maxWidth: '100%',
                         maxHeight: '100%',
                         fontFamily: 'inherit',
-                        overflow: 'visible', 
-                        
                         position: 'relative',
                         zIndex: 1,
-                        
                         hyphens: 'auto',
                         wordSpacing: 'normal',
                         letterSpacing: 'normal',
-                        
                         textDecorationThickness: isDone ? '2px' : 'auto',
                         textDecorationColor: isDone ? (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)') : 'auto',
                     }}
@@ -401,7 +416,6 @@ const CellComponent: React.FC<CellProps> = ({
             )}
             </Paper>
 
-            {/* 모바일 액션 드로어 */}
             <Drawer
                 anchor="bottom"
                 open={showMobileActions}
@@ -463,7 +477,7 @@ const CellComponent: React.FC<CellProps> = ({
                             <ListItemButton 
                                 onClick={handleMobileStatusChange}
                                 sx={{ 
-                                    borderRadius: 2,
+                                    borderRadius: 2, 
                                     backgroundColor: 'action.hover',
                                     '&:hover': { backgroundColor: 'action.selected' }
                                 }}
@@ -488,7 +502,6 @@ const CellComponent: React.FC<CellProps> = ({
 };
 
 const Cell = React.memo(CellComponent, (prev, next) => {
-    
     return prev.id === next.id &&
         prev.name === next.name &&
         prev.status === next.status &&

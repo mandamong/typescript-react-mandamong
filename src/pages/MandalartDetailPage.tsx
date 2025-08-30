@@ -170,39 +170,6 @@ const MandalartDetailPage: React.FC = () => {
     } catch { showSnackbar('상태 업데이트에 실패했습니다.', 'error'); if (original) setMandalart(original); }
   }, [setMandalart, showSnackbar]);
 
-  const updateMandalartItemName = useCallback(async (itemId: number, type: 'subject' | 'objective' | 'action', newItemName: string) => {
-    if (!mandalart) return;
-    const original = JSON.parse(JSON.stringify(mandalart));
-
-    
-    setMandalart(prev => {
-      if (!prev) return null;
-      const next: MandalartDataRaw = JSON.parse(JSON.stringify(prev));
-      if (type === 'subject' && next.subject.id === itemId) {
-        next.subject.name = newItemName;
-      } else if (type === 'objective') {
-        next.objectives = next.objectives.map((o: MandalartItem) => o.id === itemId ? { ...o, name: newItemName } : o);
-      } else if (type === 'action') {
-        next.actions = next.actions.map((arr: MandalartItem[]) => arr.map((a: MandalartItem) => a.id === itemId ? { ...a, name: newItemName } : a));
-      }
-      return next;
-    });
-
-    try {
-      if (type === 'subject') {
-        await mandalartService.updateSubject(String(itemId), newItemName);
-      } else if (type === 'objective') {
-        await mandalartService.updateObjective(String(itemId), newItemName);
-      } else {
-        await mandalartService.updateAction(String(itemId), newItemName);
-      }
-      showSnackbar('이름이 업데이트되었습니다.', 'success');
-    } catch {
-      showSnackbar('이름 업데이트에 실패했습니다.', 'error');
-      setMandalart(original); 
-    }
-  }, [mandalart, setMandalart, showSnackbar]);
-
   const triggerAIGenerationForObjective = useCallback(async (itemId: number, objectiveName: string) => {
     const objectiveIndex = mandalart?.objectives.findIndex(o => o.id === itemId);
     if (objectiveIndex === undefined || objectiveIndex < 0) return;
@@ -310,6 +277,42 @@ const MandalartDetailPage: React.FC = () => {
     }
   }, [setMandalart, showSnackbar]);
 
+  const updateMandalartItemName = useCallback(async (itemId: number, type: 'subject' | 'objective' | 'action', newItemName: string) => {
+    if (!mandalart) return;
+    const original = JSON.parse(JSON.stringify(mandalart));
+
+    setMandalart(prev => {
+      if (!prev) return null;
+      const next: MandalartDataRaw = JSON.parse(JSON.stringify(prev));
+      if (type === 'subject' && next.subject.id === itemId) {
+        next.subject.name = newItemName;
+      } else if (type === 'objective') {
+        next.objectives = next.objectives.map((o: MandalartItem) => o.id === itemId ? { ...o, name: newItemName } : o);
+      } else if (type === 'action') {
+        next.actions = next.actions.map((arr: MandalartItem[]) => arr.map((a: MandalartItem) => a.id === itemId ? { ...a, name: newItemName } : a));
+      }
+      return next;
+    });
+
+    try {
+      if (type === 'subject') {
+        await mandalartService.updateSubject(String(itemId), newItemName);
+        showSnackbar('주제 이름이 업데이트되었습니다. AI 재생성을 시작합니다.', 'info');
+        await triggerAIGenerationForSubject(newItemName);
+      } else if (type === 'objective') {
+        await mandalartService.updateObjective(String(itemId), newItemName);
+        showSnackbar('목표 이름이 업데이트되었습니다. AI 재생성을 시작합니다.', 'info');
+        await triggerAIGenerationForObjective(itemId, newItemName);
+      } else {
+        await mandalartService.updateAction(String(itemId), newItemName);
+        showSnackbar('이름이 업데이트되었습니다.', 'success');
+      }
+    } catch {
+      showSnackbar('이름 업데이트에 실패했습니다.', 'error');
+      setMandalart(original); 
+    }
+  }, [mandalart, setMandalart, showSnackbar, triggerAIGenerationForSubject, triggerAIGenerationForObjective]);
+
   const handleDelete = useCallback(async () => {
     setOpenDeleteDialog(false); if (!id) return; setLoadingDelete(true);
     try { await mandalartService.deleteMandalart(id); showSnackbar('만다라트가 삭제되었습니다.', 'success'); navigate('/mandalart'); }
@@ -348,7 +351,7 @@ const MandalartDetailPage: React.FC = () => {
   if (!mandalart) return <Typography>만다르트를 찾을 수 없습니다.</Typography>;
 
   return (
-    <GlassPanel glow gradientBorder sx={{ p: { xs:2.4, sm:3.4 }, position: 'relative', mb:4 }}>
+    <GlassPanel glow gradientBorder sx={{ p: { xs:2.4, sm:3.4 }, position: 'relative', mb:4, flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center', mb:2, gap:2, flexWrap:'wrap' }}>
           <Box sx={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:.4, minWidth:0 }}>
             {editingList.type==='mandalart' ? (
@@ -393,7 +396,7 @@ const MandalartDetailPage: React.FC = () => {
       </Box>
 
     {viewMode === 'grid' && (
-      <Box sx={{ my: 4, mx: 'auto', maxWidth: 'min(95vw, 85vh, 900px)' }}>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
         <MandalartGrid
           data={mandalart}
           updateItemName={updateItemName}
@@ -409,7 +412,7 @@ const MandalartDetailPage: React.FC = () => {
           showConnections={false}
         />
         {(loadingSubjectAI || loadingObjectiveAI!==null) && (
-          <Box sx={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:30, backdropFilter:'blur(4px) saturate(1.2)', WebkitBackdropFilter:'blur(4px) saturate(1.2)', background:(t)=> t.palette.mode==='dark' ? 'rgba(15,23,42,0.55)' : 'rgba(255,255,255,0.55)', borderRadius:2 }}>
+          <Box sx={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:30, backdropFilter:'blur(4px) saturate(1.2)', WebkitBackdropFilter:'blur(4px) saturate(1.2)', background:'transparent', borderRadius:2 }}>
             <Box sx={{ display:'flex', flexDirection:'column', alignItems:'center', gap:1.6 }}>
               <CircularProgress size={48} thickness={4} />
               <Typography variant='body2' sx={{ fontWeight:600, opacity:0.85 }}>
@@ -464,10 +467,10 @@ const MandalartDetailPage: React.FC = () => {
                 ) : (
                   <Typography variant="subtitle1" sx={{ fontWeight:700 }}>{resolveName(mandalart.subject)}</Typography>
                 )}
-                <IconButton size="small" aria-label="주제 편집" onClick={()=> setEditingList({ id: mandalart.subject.id, type:'subject', value: resolveName(mandalart.subject) })}>
+                <IconButton size="small" aria-label="주제 편집" onClick={()=> setEditingList({ id: mandalart.subject.id, type:'subject', value: resolveName(mandalart.subject) })} >
                   <EditIcon fontSize="inherit" />
                 </IconButton>
-                <IconButton size="small" aria-label="주제 AI 제안" onClick={() => triggerAIGenerationForSubject(resolveName(mandalart.subject))}>
+                <IconButton size="small" aria-label="주제 AI 제안" onClick={() => triggerAIGenerationForSubject(resolveName(mandalart.subject))} >
                   <AutoFixHighIcon fontSize="inherit" />
                 </IconButton>
               </Box>} secondary={<Typography variant="caption" sx={{ opacity:0.6 }}>주제</Typography>} />
@@ -568,12 +571,12 @@ const MandalartDetailPage: React.FC = () => {
                               </Typography>
                             )}
                             {(!isEditing && !actionLoading) && (
-                              <IconButton size="small" aria-label="행동 편집" onClick={()=> setEditingList({ id: action.id, type:'action', value: resolveName(action) })}>
+                              <IconButton size="small" aria-label="행동 편집" onClick={()=> setEditingList({ id: action.id, type:'action', value: resolveName(action) })} >
                                 <EditIcon fontSize="inherit" />
                               </IconButton>
                             )}
                             {!actionLoading && (
-                              <IconButton size="small" aria-label="서브 만다르트 생성" onClick={()=> handleCreateSubMandalart(action.id,'action', resolveName(action) || `행동 ${oi+1}.${ai+1}`)}>
+                              <IconButton size="small" aria-label="서브 만다르트 생성" onClick={()=> handleCreateSubMandalart(action.id,'action', resolveName(action) || `행동 ${oi+1}.${ai+1}`)} >
                                 <AddIcon fontSize="inherit" />
                               </IconButton>
                             )}
@@ -630,8 +633,8 @@ const MandalartDetailPage: React.FC = () => {
               </GlassPanel>
             )}
             {subStep===1 && subData && (
-              <GlassPanel gradientBorder glow sx={{ p:{ xs:2.4, sm:3.2 }, borderRadius:{ xs:4, sm:5 }, position:'relative' }}>
-                <Box sx={{ position:'relative' }}>
+              <GlassPanel gradientBorder glow sx={{ p:{ xs:2.4, sm:3.2 }, borderRadius:{ xs:4, sm:5 }, position:'relative', height: '80vh', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ position:'relative', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
                   <MandalartGrid
                     data={{
                       mandalart:{ id:0, name: subData.mandalartName, status:'IN_PROGRESS' },
@@ -643,13 +646,9 @@ const MandalartDetailPage: React.FC = () => {
                     updateItemStatus={()=>{}}
                     loadingSubjectAI={loadingSubAI}
                     loadingObjectiveAI={null}
-                    autoFit
                     visualMode='default'
                     shape='square'
                     readOnly={false}
-                    minScale={isMobile ? 0.58 : 0.7}
-                    reservedVertical={isMobile ? 320 : 200}
-                    showZoomControls={!isMobile}
                     perfMode={perf}
                     showConnections={false}
                   />
