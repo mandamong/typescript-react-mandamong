@@ -7,19 +7,22 @@ interface BrandLogoProps {
   withText?: boolean;
   titleImage?: string;
   titleImageHeight?: number;
+  showIcon?: boolean;
 }
 
-const BrandLogo: React.FC<BrandLogoProps> = ({ size = 34, withText = true, titleImage, titleImageHeight }) => {
+const BrandLogo: React.FC<BrandLogoProps> = ({ size = 34, withText = true, titleImage, titleImageHeight, showIcon = true }) => {
   return (
     <Box component={Link} to="/" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, textDecoration: 'none', color: 'inherit' }} aria-label="Mandamong Home">
-      <Box
-        component="img"
-        src="/mandamong-logo.svg"
-        alt="Mandamong Logo"
-        width={size}
-        height={size}
-        sx={{ display: 'block', borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}
-      />
+      {showIcon && (
+        <Box
+          component="img"
+          src="/mandamong-logo.svg"
+          alt="Mandamong Logo"
+          width={size}
+          height={size}
+          sx={{ display: 'block', borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}
+        />
+      )}
       {titleImage ? (
         <img src={titleImage} alt="Mandamong Title" style={{ height: titleImageHeight || size * 0.8 }} />
       ) : (

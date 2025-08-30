@@ -29,7 +29,7 @@ const Header: React.FC = () => {
             <Container maxWidth="lg" disableGutters>
                 <Toolbar disableGutters sx={{ minHeight: { xs: 54, sm: 64 }, px: { xs: 1.1, sm: 2 } }}>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-                                                <BrandLogo titleImage="/mandamong-title.svg" titleImageHeight={14} />
+                                                <BrandLogo titleImage="/mandamong-title.svg" titleImageHeight={14} showIcon={false} />
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                         {isAuthenticated && user ? (

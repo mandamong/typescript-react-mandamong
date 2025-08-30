@@ -77,7 +77,7 @@ const IntroPage: React.FC = () => {
       <HeroSection
         eyebrow={
           <Box sx={{ height: { xs: '32px', sm: '40px' } }}>
-            <img src="/mandamong-title.svg" alt="Mandamong" style={{ height: '80%' }} />
+            <img src="/mandamong-logo.svg" alt="Mandamong" style={{ height: '80%' }} />
           </Box>
         }
         title={<>목표를 구조화하고 성취하세요</>}
